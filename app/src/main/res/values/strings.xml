@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PopularMoviesStage1</string>
+    <string name="app_name">PopularMoviesStage2</string>
     <string name="toolbar_pop_movies">Popular Movies</string>
     <string name="toolbar_top_movies">Top rated Movies</string>
     <string name="dialog_error_api_key_title">ERROR API KEY!</string>

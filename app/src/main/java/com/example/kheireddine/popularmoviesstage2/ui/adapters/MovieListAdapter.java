@@ -1,4 +1,4 @@
-package com.example.kheireddine.popularmoviesstage1.ui.adapters;
+package com.example.kheireddine.popularmoviesstage2.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.kheireddine.popularmoviesstage1.R;
-import com.example.kheireddine.popularmoviesstage1.api.MovieDBServiceAPI;
-import com.example.kheireddine.popularmoviesstage1.model.Movie;
-import com.example.kheireddine.popularmoviesstage1.utils.Utils;
+import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
+import com.example.kheireddine.popularmoviesstage2.model.Movie;
+import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.kheireddine.popularmoviesstage1.ui;
+package com.example.kheireddine.popularmoviesstage2.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,12 +9,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.example.kheireddine.popularmoviesstage1.R;
-import com.example.kheireddine.popularmoviesstage1.api.MovieDBServiceAPI;
-import com.example.kheireddine.popularmoviesstage1.model.Movie;
-import com.example.kheireddine.popularmoviesstage1.model.MoviesResults;
-import com.example.kheireddine.popularmoviesstage1.ui.adapters.MovieListAdapter;
-import com.example.kheireddine.popularmoviesstage1.utils.Utils;
+import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
+import com.example.kheireddine.popularmoviesstage2.model.Movie;
+import com.example.kheireddine.popularmoviesstage2.model.MoviesResults;
+import com.example.kheireddine.popularmoviesstage2.ui.adapters.MovieListAdapter;
+import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 
 import java.util.List;
 

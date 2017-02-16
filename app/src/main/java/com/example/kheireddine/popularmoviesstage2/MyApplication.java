@@ -1,4 +1,4 @@
-package com.example.kheireddine.popularmoviesstage1;
+package com.example.kheireddine.popularmoviesstage2;
 
 import android.app.Application;
 

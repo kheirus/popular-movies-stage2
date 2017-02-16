@@ -1,4 +1,4 @@
-package com.example.kheireddine.popularmoviesstage1.ui;
+package com.example.kheireddine.popularmoviesstage2.ui;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -6,10 +6,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.kheireddine.popularmoviesstage1.R;
-import com.example.kheireddine.popularmoviesstage1.api.MovieDBServiceAPI;
-import com.example.kheireddine.popularmoviesstage1.model.Movie;
-import com.example.kheireddine.popularmoviesstage1.utils.Utils;
+import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
+import com.example.kheireddine.popularmoviesstage2.model.Movie;
+import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;

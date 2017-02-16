@@ -1,4 +1,4 @@
-package com.example.kheireddine.popularmoviesstage1.utils;
+package com.example.kheireddine.popularmoviesstage2.utils;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -6,10 +6,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.example.kheireddine.popularmoviesstage1.api.MovieDBServiceAPI;
+import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

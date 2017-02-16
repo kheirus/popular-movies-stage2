@@ -1,7 +1,4 @@
-package com.example.kheireddine.popularmoviesstage1.api;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+package com.example.kheireddine.popularmoviesstage2.api;
 
 import java.io.IOException;
 

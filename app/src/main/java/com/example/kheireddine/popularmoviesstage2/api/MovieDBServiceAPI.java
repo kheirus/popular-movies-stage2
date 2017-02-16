@@ -19,6 +19,8 @@ public class MovieDBServiceAPI {
     public static final String API_POSTER_HEADER_LARGE = "http://image.tmdb.org/t/p/w185";
     public static final String API_POSTER_HEADER_SMALL = "http://image.tmdb.org/t/p/w92";
     public static final String API_BACKDROP_HEADER = "http://image.tmdb.org/t/p/w780";
+    public static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
+
 
 
     public static final String SORT_BY_TOP_RATED = "top_rated";

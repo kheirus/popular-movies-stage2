@@ -6,5 +6,8 @@
     <string name="dialog_error_api_key_message">Please check your api_key</string>
     <string name="dialog_error_network_title">ERROR NETWORK!</string>
     <string name="dialog_error_network_message">Please check your network connectivity</string>
+    <string name="synopsis">Synopsis</string>
+
+
 
 </resources>

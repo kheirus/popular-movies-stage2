@@ -24,6 +24,8 @@ public class Movie {
     private String releaseDate;
     @SerializedName("runtime")
     private String runtime;
+    @SerializedName("videos")
+    private TrailersResults trailersResults;
 
 
     public long getId() {
@@ -56,5 +58,9 @@ public class Movie {
 
     public String getRuntime() {
         return runtime;
+    }
+
+    public TrailersResults getTrailersResults() {
+        return trailersResults;
     }
 }

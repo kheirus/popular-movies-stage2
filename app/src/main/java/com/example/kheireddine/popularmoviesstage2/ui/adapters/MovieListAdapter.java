@@ -31,7 +31,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     final private IMovieListListener mOnClickListener;
 
     /**
-     * The interface that receibes onClick messages
+     * The interface that receives onClick messages
      */
     public interface IMovieListListener {
         void onMovieListClick(int clickMovieIndex);

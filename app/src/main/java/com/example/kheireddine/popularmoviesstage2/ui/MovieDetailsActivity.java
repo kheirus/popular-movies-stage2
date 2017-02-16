@@ -1,6 +1,11 @@
 package com.example.kheireddine.popularmoviesstage2.ui;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,8 +14,14 @@ import android.widget.TextView;
 import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
+import com.example.kheireddine.popularmoviesstage2.model.Trailer;
+import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
+import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapter;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -18,16 +29,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MovieDetailsActivity extends MainActivity {
+public class MovieDetailsActivity extends MainActivity implements TrailerListAdapter.ITrailerListListener{
     @BindView(R.id.iv_backdrop) ImageView ivBackdrop;
     @BindView(R.id.iv_poster_detail) ImageView ivPosetr;
     @BindView(R.id.tv_title_detail) TextView tvTitle;
     @BindView(R.id.tv_synopsis) TextView tvSynopsis;
     @BindView(R.id.tv_rating) TextView tvRating;
     @BindView(R.id.tv_runtime) TextView tvRuntime;
+    @BindView(R.id.rv_trailer_list) RecyclerView rvTrailerList;
 
     private Movie mMovie;
     private String mMovieTitle;
+    private TrailerListAdapter mAdapter;
+    private List<Trailer> mTrailersList;
+    private StringBuilder mParamsForApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +55,53 @@ public class MovieDetailsActivity extends MainActivity {
         httpGetMovieDetails(movieId);
 
         setToolBar(mMovieTitle,true,true);
-
+        setTrailerLayoutManager();
 
     }
 
+    public void setTrailerLayoutManager() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager (mContext,LinearLayoutManager.HORIZONTAL,false);
+        rvTrailerList.setLayoutManager(linearLayoutManager);
+        rvTrailerList.setHasFixedSize(true);
+    }
 
+    private void setTrailerRecyclerAdapter(RecyclerView recyclerView) {
+        mAdapter = new TrailerListAdapter(mContext, mTrailersList, this);
+        recyclerView.setAdapter(mAdapter);
+    }
 
+    public void onClickButtonBackdrop(View view) {
+        Utils.showShortToastMessage(mContext,"Soon...");
+    }
+
+    // Open youtube application to watch trailer
+    //TODO You should use an Intent to open a youtube link in either the native app or a web browser of choice.
+    @Override
+    public void onTrailerListClick(int clickTrailerIndex) {
+        Utils.showLongToastMessage(this,"watching trailer : "+mTrailersList.get(clickTrailerIndex).getName());
+        Trailer mTrailerClicked = mTrailersList.get(clickTrailerIndex);
+        Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(MovieDBServiceAPI.YOUTUBE_URL+mTrailerClicked.getKey()));
+        startActivity(playYoutubeIntent);
+    }
+
+    public void onclickFavouriteButton(View view) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            view.setBackground(getDrawable(R.drawable.ic_favorite_fill));
+//        }
+
+    }
     /**************************************************************************************************
      *                                            HTTP calls
      ************************************************************************************************/
     public void httpGetMovieDetails(long movieId) {
-        Call<Movie> call = mdbAPI.getMovieDetails(movieId);
+        //append_to_response to api
+        mParamsForApi = new StringBuilder();
+        mParamsForApi.append(getString(R.string.api_append_videos));
+        mParamsForApi.append(",");
+        mParamsForApi.append(getString(R.string.api_append_reviews));
+
+
+        Call<Movie> call = mdbAPI.getMovieDetails(movieId,mParamsForApi.toString());
         call.enqueue(new Callback<Movie>() {
             @Override
             public void onResponse(Call<Movie> call, Response<Movie> response) {
@@ -76,7 +127,10 @@ public class MovieDetailsActivity extends MainActivity {
                         .placeholder(R.drawable.poster_placeholder)
                         .error(R.drawable.poster_error)
                         .into(ivBackdrop);
-
+                // set trailers
+                TrailersResults trailersResults= mMovie.getTrailersResults();
+                mTrailersList = trailersResults.getmTrailerResults();
+                setTrailerRecyclerAdapter(rvTrailerList);
 
             }
 
@@ -87,7 +141,6 @@ public class MovieDetailsActivity extends MainActivity {
         });
     }
 
-    public void onClickButtonBackdrop(View view) {
-        Utils.showShortToastMessage(mContext,"Soon...");
-    }
+
+
 }

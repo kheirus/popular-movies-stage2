@@ -2,6 +2,7 @@ package com.example.kheireddine.popularmoviesstage2.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
+import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
+import com.example.kheireddine.popularmoviesstage2.utils.Utils;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,6 +29,7 @@ import butterknife.ButterKnife;
 public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.TrailerViewHolder> {
     private Context mContext;
     private List<Trailer> trailers;
+    private Movie mMovie;
     final private ITrailerListListener mOnClickListener;
 
     /**
@@ -32,10 +39,11 @@ public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.
         void onTrailerListClick(int clickTrailerIndex);
     }
 
-    public TrailerListAdapter(Context mContext, List<Trailer> trailers, ITrailerListListener listener) {
+    public TrailerListAdapter(Context mContext, List<Trailer> trailers, Movie movie, ITrailerListListener listener) {
         this.mContext = mContext;
         this.trailers = trailers;
         this.mOnClickListener = listener;
+        this.mMovie = movie;
     }
 
     @Override
@@ -52,7 +60,15 @@ public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.
 
     @Override
     public void onBindViewHolder(TrailerViewHolder holder, int position) {
+        // TODO handle case when there is trailers > backdrops
         Trailer mTrailer = trailers.get(position);
+        String mBackdrop = mMovie.getImages().getBackdropsList().get(position).getPath();
+
+        Picasso.with(mContext)
+                .load(MovieDBServiceAPI.API_BACKDROP_HEADER +mBackdrop)
+                .placeholder(R.drawable.poster_placeholder)
+                .error(R.drawable.poster_error)
+                .into(holder.ivTrailerBackdrop);
         holder.tvTrailerTitle.setText(mTrailer.getName());
         holder.itemView.setTag(mTrailer.getKey());
     }
@@ -81,4 +97,5 @@ public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.
             mOnClickListener.onTrailerListClick(clickPosition);
         }
     }
+
 }

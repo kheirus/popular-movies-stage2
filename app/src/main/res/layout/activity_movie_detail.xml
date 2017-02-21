@@ -4,6 +4,7 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorPrimaryDark">
 
     <RelativeLayout
@@ -24,16 +25,18 @@
 
         <!--play trailer on backdrop-->
         <ImageView
-            android:id="@+id/iv_trailer"
+            android:id="@+id/iv_hiden_heart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_play"
+            android:src="@drawable/ic_favorite_fill"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="67dp"
-            android:onClick="onClickButtonBackdrop"/>
+            android:visibility="invisible"
+            />
 
-        <!--poster-->
+
+    <!--poster-->
         <ImageView
             android:id="@+id/iv_poster_detail"
             android:layout_width="110dp"
@@ -181,7 +184,6 @@
 
             </android.support.v7.widget.RecyclerView>
         </LinearLayout>
-
 
     </RelativeLayout>
 </ScrollView>

@@ -1,13 +1,21 @@
 package com.example.kheireddine.popularmoviesstage2.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,6 +45,7 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
     @BindView(R.id.tv_rating) TextView tvRating;
     @BindView(R.id.tv_runtime) TextView tvRuntime;
     @BindView(R.id.rv_trailer_list) RecyclerView rvTrailerList;
+    @BindView(R.id.iv_hiden_heart) ImageView ivHidenHeart;
 
     private Movie mMovie;
     private String mMovieTitle;
@@ -66,13 +75,10 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
     }
 
     private void setTrailerRecyclerAdapter(RecyclerView recyclerView) {
-        mAdapter = new TrailerListAdapter(mContext, mTrailersList, this);
+        mAdapter = new TrailerListAdapter(mContext, mTrailersList, mMovie, this);
         recyclerView.setAdapter(mAdapter);
     }
 
-    public void onClickButtonBackdrop(View view) {
-        Utils.showShortToastMessage(mContext,"Soon...");
-    }
 
     // Open youtube application to watch trailer
     //TODO You should use an Intent to open a youtube link in either the native app or a web browser of choice.
@@ -84,12 +90,59 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
         startActivity(playYoutubeIntent);
     }
 
-    public void onclickFavouriteButton(View view) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            view.setBackground(getDrawable(R.drawable.ic_favorite_fill));
-//        }
+//    public void onclickFavouriteButton(View view) {
+////        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+////            view.setBackground(getDrawable(R.drawable.ic_favorite_fill));
+////        }
+//
+//    }
 
+    /**
+     * Create a Menu
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.details_movie_menu, menu);
+        return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_favourite:
+
+                if(item.isChecked()){
+                    item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_fill));
+                    item.setChecked(false);
+                    final Animation animScale = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale);
+                    ivHidenHeart.startAnimation(animScale);
+                    addToFavourite();
+                    break;
+                }
+
+                else {
+                    item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite));
+                    item.setChecked(true);
+                    removeFromFavourite();
+                    break;
+                }
+
+
+
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void addToFavourite (){
+        // TODO
+    }
+
+    private void removeFromFavourite (){
+        // TODO
+    }
+
     /**************************************************************************************************
      *                                            HTTP calls
      ************************************************************************************************/
@@ -99,6 +152,9 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
         mParamsForApi.append(getString(R.string.api_append_videos));
         mParamsForApi.append(",");
         mParamsForApi.append(getString(R.string.api_append_reviews));
+        mParamsForApi.append(",");
+        mParamsForApi.append(getString(R.string.api_append_images));
+
 
 
         Call<Movie> call = mdbAPI.getMovieDetails(movieId,mParamsForApi.toString());

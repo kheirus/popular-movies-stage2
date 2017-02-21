@@ -2,6 +2,8 @@ package com.example.kheireddine.popularmoviesstage2.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by kheireddine on 30/01/17.
  */
@@ -26,7 +28,27 @@ public class Movie {
     private String runtime;
     @SerializedName("videos")
     private TrailersResults trailersResults;
+    @SerializedName("images")
+    private Images images;
 
+
+    public static class Images {
+        @SerializedName("backdrops")
+        List<Backdrops> backdropsList;
+
+        public List<Backdrops> getBackdropsList() {
+            return backdropsList;
+        }
+    }
+
+     public static class Backdrops{
+        @SerializedName("file_path")
+        String path;
+
+        public String getPath() {
+            return path;
+        }
+    }
 
     public long getId() {
         return id;
@@ -62,5 +84,9 @@ public class Movie {
 
     public TrailersResults getTrailersResults() {
         return trailersResults;
+    }
+
+    public Images getImages() {
+        return images;
     }
 }

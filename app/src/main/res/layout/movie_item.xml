@@ -32,6 +32,13 @@
         android:background="#BB000000"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="left"
+            android:layout_marginRight="10dp"
+            >
 
             <TextView
                 android:id="@+id/tv_title"
@@ -39,16 +46,39 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:textColor="@color/white"
-                android:textAllCaps="true"
-                android:layout_gravity="center"
-                android:text="title"
-                android:textSize="14sp"
+                android:text="Title"
+                android:maxLength="15"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="marquee"
-                android:layout_marginStart="7dp"
-                android:layout_marginEnd="7dp"
+                android:ellipsize="end"
                 />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+
+            <TextView
+                android:id="@+id/tv_rating_movie_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:textAllCaps="true"
+                android:text="-"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:layout_marginRight="3dp"/>
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:scaleType="fitXY"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_star"
+                />
+
+        </LinearLayout>
 
         </LinearLayout>
 

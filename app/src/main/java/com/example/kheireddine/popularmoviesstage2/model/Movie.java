@@ -2,36 +2,38 @@ package com.example.kheireddine.popularmoviesstage2.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.parceler.Parcel;
+
 import java.util.List;
 
 /**
  * Created by kheireddine on 30/01/17.
  */
 
-
+@Parcel
 public class Movie {
     @SerializedName("id")
-    private long id;
+    long id;
     @SerializedName("original_title")
-    private String title;
+    String title;
     @SerializedName("poster_path")
-    private String poster;
+    String poster;
     @SerializedName("backdrop_path")
-    private String backdrop;
+    String backdrop;
     @SerializedName("overview")
-    private String synopsis;
+    String synopsis;
     @SerializedName("vote_average")
-    private String rating;
+    String rating;
     @SerializedName("release_date")
-    private String releaseDate;
+    String releaseDate;
     @SerializedName("runtime")
-    private String runtime;
+    String runtime;
     @SerializedName("videos")
-    private TrailersResults trailersResults;
+    TrailersResults trailersResults;
     @SerializedName("images")
-    private Images images;
+    Images images;
 
-
+    @Parcel
     public static class Images {
         @SerializedName("backdrops")
         List<Backdrops> backdropsList;
@@ -41,7 +43,8 @@ public class Movie {
         }
     }
 
-     public static class Backdrops{
+    @Parcel
+    public static class Backdrops{
         @SerializedName("file_path")
         String path;
 

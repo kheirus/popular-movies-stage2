@@ -64,6 +64,8 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
                 .placeholder(R.drawable.poster_placeholder)
                 .error(R.drawable.poster_error)
                 .into(holder.ivPoser);
+
+        holder.tvRatingMovieItem.setText(mMovie.getRating());
         holder.tvTitle.setText(mMovie.getTitle());
         holder.itemView.setTag(mMovie);
 
@@ -82,6 +84,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         @BindView(R.id.iv_poster) ImageView ivPoser;
         @BindView(R.id.tv_title) TextView tvTitle;
+        @BindView(R.id.tv_rating_movie_item) TextView tvRatingMovieItem;
 
         public MovieViewHolder(View itemView) {
             super(itemView);

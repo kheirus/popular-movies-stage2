@@ -4,7 +4,6 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorPrimaryDark">
 
     <RelativeLayout
@@ -35,8 +34,7 @@
             android:visibility="invisible"
             />
 
-
-    <!--poster-->
+        <!--poster-->
         <ImageView
             android:id="@+id/iv_poster_detail"
             android:layout_width="110dp"
@@ -48,20 +46,6 @@
             android:layout_marginLeft="15dp"
             android:scaleType="fitXY"
             />
-
-        <!--favourite-->
-        <!--<ImageButton-->
-            <!--android:id="@+id/iv_favourite"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@drawable/ic_favorite"-->
-            <!--android:layout_marginTop="250dp"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentRight="true"-->
-            <!--android:layout_marginRight="15dp"-->
-            <!--android:scaleType="fitXY"-->
-            <!--android:onClick="onclickFavouriteButton"-->
-            <!--/>-->
 
         <TextView
             android:layout_width="wrap_content"
@@ -152,7 +136,7 @@
             android:id="@+id/tv_synopsis_fix"
             android:layout_below="@+id/iv_poster_detail"
             android:textColor="@color/greyLight"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_alignLeft="@+id/iv_poster_detail" />
 
         <!--synopsis-->
@@ -175,14 +159,63 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_synopsis"
             android:layout_marginTop="10dp"
+            android:orientation="vertical"
             >
+            <!--Reviews fix-->
+            <TextView
+                android:id="@+id/tv_trailers_fix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trailers"
+                android:layout_marginTop="20dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/greyLight"
+                android:layout_marginLeft="15dp"
+                />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_trailer_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                >
+                android:layout_marginBottom="10dp"
+                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
 
-            </android.support.v7.widget.RecyclerView>
+                <!--Reviews fix-->
+                <TextView
+                    android:id="@+id/tv_reviews_fix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reviews"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/greyLight"
+                    android:layout_marginLeft="15dp"
+                    />
+
+                <!--Reviews count-->
+                <TextView
+                    android:id="@+id/tv_reviews_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(-)"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/greyLight"
+                    android:layout_marginLeft="5dp"
+                    />
+
+            </LinearLayout>
+
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_reviews_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                />
         </LinearLayout>
 
     </RelativeLayout>

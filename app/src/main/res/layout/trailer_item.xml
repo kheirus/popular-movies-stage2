@@ -12,7 +12,6 @@
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-
         >
 
         <RelativeLayout
@@ -51,7 +50,7 @@
             android:id="@+id/tv_trailer_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="title"
+            android:text="Title"
             android:textColor="@color/colorPrimaryDark"
             android:maxLines="1"
             android:ellipsize="marquee"

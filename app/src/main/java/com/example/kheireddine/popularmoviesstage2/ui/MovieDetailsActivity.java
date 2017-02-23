@@ -1,15 +1,12 @@
 package com.example.kheireddine.popularmoviesstage2.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,13 +19,15 @@ import android.widget.TextView;
 import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
+import com.example.kheireddine.popularmoviesstage2.model.Review;
+import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
+import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapter;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -37,7 +36,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MovieDetailsActivity extends MainActivity implements TrailerListAdapter.ITrailerListListener{
+public class MovieDetailsActivity extends MainActivity implements
+        TrailerListAdapter.ITrailerListListener, ReviewListAdapter.IReviewListListener{
     @BindView(R.id.iv_backdrop) ImageView ivBackdrop;
     @BindView(R.id.iv_poster_detail) ImageView ivPosetr;
     @BindView(R.id.tv_title_detail) TextView tvTitle;
@@ -45,12 +45,17 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
     @BindView(R.id.tv_rating) TextView tvRating;
     @BindView(R.id.tv_runtime) TextView tvRuntime;
     @BindView(R.id.rv_trailer_list) RecyclerView rvTrailerList;
+    @BindView(R.id.rv_reviews_list) RecyclerView rvReviewList;
     @BindView(R.id.iv_hiden_heart) ImageView ivHidenHeart;
+    @BindView(R.id.tv_reviews_count) TextView tvReviewCount;
+    @BindView(R.id.tv_reviews_fix) TextView tvReviewFix;
 
     private Movie mMovie;
     private String mMovieTitle;
-    private TrailerListAdapter mAdapter;
+    private TrailerListAdapter mTrailerAdapter;
+    private ReviewListAdapter mReviewAdapter;
     private List<Trailer> mTrailersList;
+    private List<Review> mReviewList;
     private StringBuilder mParamsForApi;
 
     @Override
@@ -65,6 +70,7 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
 
         setToolBar(mMovieTitle,true,true);
         setTrailerLayoutManager();
+        setReviewLayoutManager();
 
     }
 
@@ -74,11 +80,21 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
         rvTrailerList.setHasFixedSize(true);
     }
 
-    private void setTrailerRecyclerAdapter(RecyclerView recyclerView) {
-        mAdapter = new TrailerListAdapter(mContext, mTrailersList, mMovie, this);
-        recyclerView.setAdapter(mAdapter);
+    public void setReviewLayoutManager() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager (mContext,LinearLayoutManager.HORIZONTAL,false);
+        rvReviewList.setLayoutManager(linearLayoutManager);
+        rvReviewList.setHasFixedSize(true);
     }
 
+    private void setTrailerRecyclerAdapter(RecyclerView recyclerView) {
+        mTrailerAdapter = new TrailerListAdapter(mContext, mTrailersList, mMovie, this);
+        recyclerView.setAdapter(mTrailerAdapter);
+    }
+
+    private void setReviewRecyclerAdapter(RecyclerView recyclerView){
+        mReviewAdapter = new ReviewListAdapter(mContext, mReviewList,this);
+        recyclerView.setAdapter(mReviewAdapter);
+    }
 
     // Open youtube application to watch trailer
     //TODO You should use an Intent to open a youtube link in either the native app or a web browser of choice.
@@ -90,12 +106,11 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
         startActivity(playYoutubeIntent);
     }
 
-//    public void onclickFavouriteButton(View view) {
-////        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-////            view.setBackground(getDrawable(R.drawable.ic_favorite_fill));
-////        }
-//
-//    }
+    // Click on a review
+    @Override
+    public void onReviewListClick(int clickReviewIndex) {
+        Log.d("pm", "onReviewListClick: "+mReviewList.get(clickReviewIndex).getAuthor());
+    }
 
     /**
      * Create a Menu
@@ -183,10 +198,25 @@ public class MovieDetailsActivity extends MainActivity implements TrailerListAda
                         .placeholder(R.drawable.poster_placeholder)
                         .error(R.drawable.poster_error)
                         .into(ivBackdrop);
+
                 // set trailers
                 TrailersResults trailersResults= mMovie.getTrailersResults();
                 mTrailersList = trailersResults.getmTrailerResults();
                 setTrailerRecyclerAdapter(rvTrailerList);
+
+                //set reviews
+                ReviewResults reviewResults = mMovie.getReviewResults();
+                mReviewList = reviewResults.getReviews();
+                setReviewRecyclerAdapter(rvReviewList);
+                int totalReviews = mMovie.getReviewResults().getTotalReviews();
+                if (totalReviews==0){
+                    tvReviewCount.setVisibility(View.GONE);
+                    tvReviewFix.setVisibility(View.GONE);
+                }
+                else {
+                    tvReviewCount.setText("("+totalReviews+")");
+                }
+
 
             }
 

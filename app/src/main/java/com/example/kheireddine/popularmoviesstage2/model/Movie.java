@@ -30,6 +30,8 @@ public class Movie {
     String runtime;
     @SerializedName("videos")
     TrailersResults trailersResults;
+    @SerializedName("reviews")
+    ReviewResults reviewResults;
     @SerializedName("images")
     Images images;
 
@@ -91,5 +93,9 @@ public class Movie {
 
     public Images getImages() {
         return images;
+    }
+
+    public ReviewResults getReviewResults() {
+        return reviewResults;
     }
 }

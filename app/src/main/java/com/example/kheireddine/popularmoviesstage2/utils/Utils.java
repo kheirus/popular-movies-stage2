@@ -139,6 +139,4 @@ public class Utils {
         int noOfColumns = (int) (dpWidth / 180);
         return noOfColumns;
     }
-
-
 }

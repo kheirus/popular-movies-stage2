@@ -73,7 +73,7 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Re
 
 
 
-    class ReviewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    protected class ReviewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         @BindView(R.id.tv_review_author) TextView tvReviewAuthor;
         @BindView(R.id.tv_review_content) TextView tvReviewContent;
         public ReviewViewHolder(View itemView) {

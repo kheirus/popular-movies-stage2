@@ -28,6 +28,8 @@ import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapte
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
+import org.parceler.Parcels;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -57,6 +59,7 @@ public class MovieDetailsActivity extends MainActivity implements
     private List<Trailer> mTrailersList;
     private List<Review> mReviewList;
     private StringBuilder mParamsForApi;
+    public static final String EXTRA_PARCELABLE_MOVIE ="extra_parcelable_movie";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +113,11 @@ public class MovieDetailsActivity extends MainActivity implements
     @Override
     public void onReviewListClick(int clickReviewIndex) {
         Log.d("pm", "onReviewListClick: "+mReviewList.get(clickReviewIndex).getAuthor());
+        Intent reviewsIntent = new Intent(this, ReviewsActivity.class);
+        reviewsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
+        startActivity(reviewsIntent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out );
+
     }
 
     /**

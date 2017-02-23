@@ -8,6 +8,7 @@
 
     <color name="black">#000000</color>
     <color name="black_opaque">#AA000000</color>
+    <color name="black_trasparent">#80000000</color>
     <color name="white">#FFFFFF</color>
     <color name="greyDark">#262626</color>
     <color name="greyLight">#9ca4a7</color>

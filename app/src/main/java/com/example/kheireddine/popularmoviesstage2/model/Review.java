@@ -9,7 +9,7 @@ import org.parceler.Parcel;
  */
 
 @Parcel
-public class Review {
+public class Review extends Model {
     @SerializedName("author")
     String author;
     @SerializedName("content")

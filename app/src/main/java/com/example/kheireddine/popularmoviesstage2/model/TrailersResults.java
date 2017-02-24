@@ -11,11 +11,11 @@ import java.util.List;
  */
 
 @Parcel
-public class TrailersResults {
+public class TrailersResults extends Model {
     @SerializedName("results")
-    List<Trailer> mTrailerResults;
+    List<Trailer> trailers;
 
-    public List<Trailer> getmTrailerResults() {
-        return mTrailerResults;
+    public List<Trailer> getTrailers() {
+        return trailers;
     }
 }

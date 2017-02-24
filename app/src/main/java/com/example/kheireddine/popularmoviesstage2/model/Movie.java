@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @Parcel
-public class Movie {
+public class Movie extends Model{
     @SerializedName("id")
     long id;
     @SerializedName("original_title")
@@ -97,5 +97,17 @@ public class Movie {
 
     public ReviewResults getReviewResults() {
         return reviewResults;
+    }
+
+    public void setTrailersResults(TrailersResults trailersResults) {
+        this.trailersResults = trailersResults;
+    }
+
+    public void setReviewResults(ReviewResults reviewResults) {
+        this.reviewResults = reviewResults;
+    }
+
+    public void setImages(Images images) {
+        this.images = images;
     }
 }

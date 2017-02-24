@@ -1,7 +1,10 @@
 package com.example.kheireddine.popularmoviesstage2.api;
 
+import com.example.kheireddine.popularmoviesstage2.model.Model;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.MoviesResults;
+import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
+import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 
 import java.util.List;
 
@@ -20,7 +23,21 @@ public interface IMovieDBRestAPI {
     Call<MoviesResults> getPopluarMovies(@Path("sort_by") String sortBy);
 
     //http://api.themoviedb.org/3/movie/123?api_key=99999999999999999999
-    @GET("movie/{movie_id}")
-    Call<Movie> getMovieDetails(@Path("movie_id")long movieId,
-                                @Query("append_to_response") String appendToResponseList);
+//    @GET("movie/{movie_id}")
+//    Call<Movie> getMovieDetails(@Path("movie_id")long movieId,
+//                                @Query("append_to_response") String appendToResponseList);
+
+    @GET("movie/{id}/videos")
+    Call<TrailersResults> getMovieTrailers(@Path("id") long movieId);
+
+    @GET("movie/{id}/reviews")
+    Call<TrailersResults> getMovieReviews(@Path("id") long movieId);
+
+    @GET("movie/{id}/images")
+    Call<Movie.Images> getMovieImages(@Path("id") long movieId);
+
+    @GET("movie/{id}/{detail_type}")
+    Call<Model> getMovieDetails(@Path("id") long movieId,
+                                                 @Path("detail_type") String movieDetailParam);
+
 }

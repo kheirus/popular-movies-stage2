@@ -3,10 +3,12 @@ package com.example.kheireddine.popularmoviesstage2.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.model.Model;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Review;
 import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
@@ -37,6 +40,9 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.ExtraMovieDetails.*;
 
 public class MovieDetailsActivity extends MainActivity implements
         TrailerListAdapter.ITrailerListListener, ReviewListAdapter.IReviewListListener{
@@ -66,9 +72,14 @@ public class MovieDetailsActivity extends MainActivity implements
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
 
-        long movieId = getIntent().getExtras().getLong(MovieListActivity.EXTRA_MOVIE_ID);
-        mMovieTitle= getIntent().getExtras().getString(MovieListActivity.EXTRA_MOVIE_TITLE);
-        httpGetMovieDetails(movieId);
+        mMovie = Parcels.unwrap(getIntent().getExtras().getParcelable(EXTRA_PARCELABLE_MOVIE));
+        setViewMovie();
+        // fetch other details of the movie (trailers, images, reviews...)
+        httpGetMovieTrailers();
+        httpGetMovieImages();
+
+
+
 
         setToolBar(mMovieTitle,true,true);
         setTrailerLayoutManager();
@@ -76,20 +87,49 @@ public class MovieDetailsActivity extends MainActivity implements
 
     }
 
-    public void setTrailerLayoutManager() {
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    private void setViewMovie(){
+        // set the title and the year
+        tvTitle.setText(mMovie.getTitle() + " (" + Utils.getYear(mMovie.getReleaseDate())+")");
+        // set the synopsis
+        tvSynopsis.setText(mMovie.getSynopsis());
+        // set rating
+        tvRating.setText(mMovie.getRating());
+        // set the runtime
+        tvRuntime.setText(Utils.timeToDisplay(mMovie.getRuntime()));
+        // set the poster
+        Picasso.with(mContext)
+                .load(API_POSTER_HEADER_LARGE +mMovie.getPoster())
+                .placeholder(R.drawable.poster_placeholder)
+                .error(R.drawable.poster_error)
+                .into(ivPosetr);
+        // set the background
+        Picasso.with(mContext)
+                .load(API_BACKDROP_HEADER+mMovie.getBackdrop())
+                .placeholder(R.drawable.poster_placeholder)
+                .error(R.drawable.poster_error)
+                .into(ivBackdrop);
+
+    }
+
+    private void setTrailerLayoutManager() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager (mContext,LinearLayoutManager.HORIZONTAL,false);
         rvTrailerList.setLayoutManager(linearLayoutManager);
         rvTrailerList.setHasFixedSize(true);
     }
 
-    public void setReviewLayoutManager() {
+    private void setReviewLayoutManager() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager (mContext,LinearLayoutManager.HORIZONTAL,false);
         rvReviewList.setLayoutManager(linearLayoutManager);
         rvReviewList.setHasFixedSize(true);
     }
 
     private void setTrailerRecyclerAdapter(RecyclerView recyclerView) {
-        mTrailerAdapter = new TrailerListAdapter(mContext, mTrailersList, mMovie, this);
+        mTrailerAdapter = new TrailerListAdapter(mContext, mMovie, this);
         recyclerView.setAdapter(mTrailerAdapter);
     }
 
@@ -104,7 +144,7 @@ public class MovieDetailsActivity extends MainActivity implements
     public void onTrailerListClick(int clickTrailerIndex) {
         Utils.showLongToastMessage(this,"watching trailer : "+mTrailersList.get(clickTrailerIndex).getName());
         Trailer mTrailerClicked = mTrailersList.get(clickTrailerIndex);
-        Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.YOUTUBE_URL+mTrailerClicked.getKey()));
+        Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_URL+mTrailerClicked.getKey()));
         startActivity(playYoutubeIntent);
     }
 
@@ -113,7 +153,7 @@ public class MovieDetailsActivity extends MainActivity implements
     public void onReviewListClick(int clickReviewIndex) {
         Log.d("pm", "onReviewListClick: "+mReviewList.get(clickReviewIndex).getAuthor());
         Intent reviewsIntent = new Intent(this, ReviewsActivity.class);
-        reviewsIntent.putExtra(Constants.EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
+        reviewsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
         startActivity(reviewsIntent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out );
 
@@ -149,10 +189,6 @@ public class MovieDetailsActivity extends MainActivity implements
                     removeFromFavourite();
                     break;
                 }
-
-
-
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -168,71 +204,86 @@ public class MovieDetailsActivity extends MainActivity implements
     /**************************************************************************************************
      *                                            HTTP calls
      ************************************************************************************************/
-    public void httpGetMovieDetails(long movieId) {
-        //append_to_response to api
-        mParamsForApi = new StringBuilder();
-        mParamsForApi.append(getString(R.string.api_append_videos));
-        mParamsForApi.append(",");
-        mParamsForApi.append(getString(R.string.api_append_reviews));
-        mParamsForApi.append(",");
-        mParamsForApi.append(getString(R.string.api_append_images));
+//    public void httpGetMovieDetails(long movieId) {
+//        //append_to_response to api
+//        mParamsForApi = new StringBuilder();
+//        mParamsForApi.append(getString(R.string.api_append_videos));
+//        mParamsForApi.append(",");
+//        mParamsForApi.append(getString(R.string.api_append_reviews));
+//        mParamsForApi.append(",");
+//        mParamsForApi.append(getString(R.string.api_append_images));
+//
+//
+//
+//        Call<Movie> call = mdbAPI.getMovieDetails(movieId,mParamsForApi.toString());
+//        call.enqueue(new Callback<Movie>() {
+//            @Override
+//            public void onResponse(Call<Movie> call, Response<Movie> response) {
+//                // retrieve the selected movie
+//                mMovie = response.body();
+//
+//                // set trailers
+//                TrailersResults trailersResults= mMovie.getTrailersResults();
+//                mTrailersList = trailersResults.getTrailers();
+//                setTrailerRecyclerAdapter(rvTrailerList);
+//
+//                //set reviews
+//                ReviewResults reviewResults = mMovie.getReviewResults();
+//                mReviewList = reviewResults.getReviews();
+//                setReviewRecyclerAdapter(rvReviewList);
+//                int totalReviews = mMovie.getReviewResults().getTotalReviews();
+//                if (totalReviews==0){
+//                    tvReviewCount.setVisibility(View.GONE);
+//                    tvReviewFix.setVisibility(View.GONE);
+//                }
+//                else {
+//                    tvReviewCount.setText("("+totalReviews+")");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Movie> call, Throwable t) {
+//                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
+//            }
+//        });
+//    }
 
-
-
-        Call<Movie> call = mdbAPI.getMovieDetails(movieId,mParamsForApi.toString());
-        call.enqueue(new Callback<Movie>() {
+    private void httpGetMovieTrailers(){
+        Call<TrailersResults> call = mdbAPI.getMovieTrailers(mMovie.getId());
+        call.enqueue(new Callback<TrailersResults>() {
             @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-                // retrieve the selected movie
-                mMovie = response.body();
-                // set the title and the year
-                tvTitle.setText(mMovie.getTitle() + " (" + Utils.getYear(mMovie.getReleaseDate())+")");
-                // set the synopsis
-                tvSynopsis.setText(mMovie.getSynopsis());
-                // set rating
-                tvRating.setText(mMovie.getRating());
-                // set the runtime
-                tvRuntime.setText(Utils.timeToDisplay(mMovie.getRuntime()));
-                // set the poster
-                Picasso.with(mContext)
-                        .load(Constants.API_POSTER_HEADER_LARGE +mMovie.getPoster())
-                        .placeholder(R.drawable.poster_placeholder)
-                        .error(R.drawable.poster_error)
-                        .into(ivPosetr);
-                // set the background
-                Picasso.with(mContext)
-                        .load(Constants.API_BACKDROP_HEADER+mMovie.getBackdrop())
-                        .placeholder(R.drawable.poster_placeholder)
-                        .error(R.drawable.poster_error)
-                        .into(ivBackdrop);
-
+            public void onResponse(Call<TrailersResults> call, Response<TrailersResults> response) {
                 // set trailers
-                TrailersResults trailersResults= mMovie.getTrailersResults();
-                mTrailersList = trailersResults.getmTrailerResults();
+                TrailersResults trailersResults= response.body();
+                mMovie.setTrailersResults(trailersResults);
                 setTrailerRecyclerAdapter(rvTrailerList);
-
-                //set reviews
-                ReviewResults reviewResults = mMovie.getReviewResults();
-                mReviewList = reviewResults.getReviews();
-                setReviewRecyclerAdapter(rvReviewList);
-                int totalReviews = mMovie.getReviewResults().getTotalReviews();
-                if (totalReviews==0){
-                    tvReviewCount.setVisibility(View.GONE);
-                    tvReviewFix.setVisibility(View.GONE);
-                }
-                else {
-                    tvReviewCount.setText("("+totalReviews+")");
-                }
-
-
             }
 
             @Override
-            public void onFailure(Call<Movie> call, Throwable t) {
-                Log.d(Utils.TAG, "onFailure: "+t.getMessage());
+            public void onFailure(Call<TrailersResults> call, Throwable t) {
+                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
             }
         });
     }
+
+    private void httpGetMovieImages(){
+        Call<Movie.Images> call = mdbAPI.getMovieImages(mMovie.getId());
+        call.enqueue(new Callback<Movie.Images>() {
+            @Override
+            public void onResponse(Call<Movie.Images> call, Response<Movie.Images> response) {
+                // set trailers
+                Movie.Images images= response.body();
+                mMovie.setImages(images);
+                setTrailerRecyclerAdapter(rvTrailerList);
+            }
+
+            @Override
+            public void onFailure(Call<Movie.Images> call, Throwable t) {
+                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
+            }
+        });
+    }
+
 
 
 

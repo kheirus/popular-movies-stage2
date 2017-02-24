@@ -16,6 +16,8 @@ import com.example.kheireddine.popularmoviesstage2.ui.adapters.MovieListAdapter;
 import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 
+import org.parceler.Parcels;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -32,7 +34,6 @@ public class MovieListActivity extends MainActivity
     private List<Movie> mMoviesList;
     private MovieListAdapter mAdapter;
     private String SORT_BY = Constants.SORT_BY_DEFAULT;
-    private final static int NB_CELL = 2;
     private static final int TITLE_MOVIE_DEFAULT = R.string.toolbar_pop_movies;
     public static String EXTRA_MOVIE_ID = "extra_movie_id";
     public static String EXTRA_MOVIE_TITLE = "extra_movie_title";
@@ -91,8 +92,9 @@ public class MovieListActivity extends MainActivity
     public void onMovieListClick(int clickMovieIndex) {
         Movie mMovieClicked = mMoviesList.get(clickMovieIndex);
         Intent movieDetailsIntent = new Intent(MovieListActivity.this, MovieDetailsActivity.class);
-        movieDetailsIntent.putExtra(EXTRA_MOVIE_ID, mMovieClicked.getId());
-        movieDetailsIntent.putExtra(EXTRA_MOVIE_TITLE, mMovieClicked.getTitle());
+        movieDetailsIntent.putExtra(Constants.EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovieClicked));
+//        movieDetailsIntent.putExtra(EXTRA_MOVIE_ID, mMovieClicked.getId());
+//        movieDetailsIntent.putExtra(EXTRA_MOVIE_TITLE, mMovieClicked.getTitle());
         startActivity(movieDetailsIntent);
     }
 

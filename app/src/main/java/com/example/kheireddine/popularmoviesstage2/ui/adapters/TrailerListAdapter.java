@@ -11,10 +11,9 @@ import android.widget.TextView;
 import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
+import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,7 +24,6 @@ import butterknife.ButterKnife;
 
 public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.TrailerViewHolder> {
     private Context mContext;
-    private List<Trailer> trailers;
     private Movie mMovie;
     final private ITrailerListListener mOnClickListener;
 
@@ -36,9 +34,8 @@ public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.
         void onTrailerListClick(int clickTrailerIndex);
     }
 
-    public TrailerListAdapter(Context mContext, List<Trailer> trailers, Movie movie, ITrailerListListener listener) {
+    public TrailerListAdapter(Context mContext, Movie movie, ITrailerListListener listener) {
         this.mContext = mContext;
-        this.trailers = trailers;
         this.mOnClickListener = listener;
         this.mMovie = movie;
     }
@@ -58,21 +55,25 @@ public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.
     @Override
     public void onBindViewHolder(TrailerViewHolder holder, int position) {
         // TODO handle case when there is trailers > backdrops
-        Trailer mTrailer = trailers.get(position);
-        String mBackdrop = mMovie.getImages().getBackdropsList().get(position).getPath();
+        TrailersResults trailersResults = mMovie.getTrailersResults();
+        Trailer mTrailer = trailersResults.getTrailers().get(position);
+        if (mMovie.getImages()!=null){
+            String mBackdrop = mMovie.getImages().getBackdropsList().get(position).getPath();
 
-        Picasso.with(mContext)
-                .load(Constants.API_BACKDROP_HEADER +mBackdrop)
-                .placeholder(R.drawable.poster_placeholder)
-                .error(R.drawable.poster_error)
-                .into(holder.ivTrailerBackdrop);
+            Picasso.with(mContext)
+                    .load(Constants.API_BACKDROP_HEADER +mBackdrop)
+                    .placeholder(R.drawable.poster_placeholder)
+                    .error(R.drawable.poster_error)
+                    .into(holder.ivTrailerBackdrop);
+        }
+
         holder.tvTrailerTitle.setText(mTrailer.getName());
         holder.itemView.setTag(mTrailer.getKey());
     }
 
     @Override
     public int getItemCount() {
-        return trailers.size();
+        return mMovie.getTrailersResults().getTrailers().size();
     }
 
 

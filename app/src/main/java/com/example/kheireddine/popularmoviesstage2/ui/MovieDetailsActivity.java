@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
-import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Review;
 import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
@@ -25,6 +24,7 @@ import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapter;
+import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -59,7 +59,6 @@ public class MovieDetailsActivity extends MainActivity implements
     private List<Trailer> mTrailersList;
     private List<Review> mReviewList;
     private StringBuilder mParamsForApi;
-    public static final String EXTRA_PARCELABLE_MOVIE ="extra_parcelable_movie";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +104,7 @@ public class MovieDetailsActivity extends MainActivity implements
     public void onTrailerListClick(int clickTrailerIndex) {
         Utils.showLongToastMessage(this,"watching trailer : "+mTrailersList.get(clickTrailerIndex).getName());
         Trailer mTrailerClicked = mTrailersList.get(clickTrailerIndex);
-        Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(MovieDBServiceAPI.YOUTUBE_URL+mTrailerClicked.getKey()));
+        Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.YOUTUBE_URL+mTrailerClicked.getKey()));
         startActivity(playYoutubeIntent);
     }
 
@@ -114,7 +113,7 @@ public class MovieDetailsActivity extends MainActivity implements
     public void onReviewListClick(int clickReviewIndex) {
         Log.d("pm", "onReviewListClick: "+mReviewList.get(clickReviewIndex).getAuthor());
         Intent reviewsIntent = new Intent(this, ReviewsActivity.class);
-        reviewsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
+        reviewsIntent.putExtra(Constants.EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
         startActivity(reviewsIntent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out );
 
@@ -196,13 +195,13 @@ public class MovieDetailsActivity extends MainActivity implements
                 tvRuntime.setText(Utils.timeToDisplay(mMovie.getRuntime()));
                 // set the poster
                 Picasso.with(mContext)
-                        .load(MovieDBServiceAPI.API_POSTER_HEADER_LARGE +mMovie.getPoster())
+                        .load(Constants.API_POSTER_HEADER_LARGE +mMovie.getPoster())
                         .placeholder(R.drawable.poster_placeholder)
                         .error(R.drawable.poster_error)
                         .into(ivPosetr);
                 // set the background
                 Picasso.with(mContext)
-                        .load(MovieDBServiceAPI.API_BACKDROP_HEADER+mMovie.getBackdrop())
+                        .load(Constants.API_BACKDROP_HEADER+mMovie.getBackdrop())
                         .placeholder(R.drawable.poster_placeholder)
                         .error(R.drawable.poster_error)
                         .into(ivBackdrop);

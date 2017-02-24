@@ -8,15 +8,10 @@ import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
 
-import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Random;
-
 
 
 /**
@@ -62,9 +57,9 @@ public class Utils {
      * Check the api key
      */
     public static boolean isValidApiKey(){
-        if (MovieDBServiceAPI.API_KEY.equals("YOUR_API") ||
-                MovieDBServiceAPI.API_KEY.isEmpty() ||
-                MovieDBServiceAPI.API_KEY.equals("")){
+        if (Constants.API_KEY.equals("YOUR_API") ||
+                Constants.API_KEY.isEmpty() ||
+                Constants.API_KEY.equals("")){
             return false;
         }
         else return true;

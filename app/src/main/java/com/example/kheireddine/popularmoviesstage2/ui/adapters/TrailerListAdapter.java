@@ -2,7 +2,6 @@ package com.example.kheireddine.popularmoviesstage2.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
-import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
-import com.example.kheireddine.popularmoviesstage2.utils.Utils;
+import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,7 +62,7 @@ public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.
         String mBackdrop = mMovie.getImages().getBackdropsList().get(position).getPath();
 
         Picasso.with(mContext)
-                .load(MovieDBServiceAPI.API_BACKDROP_HEADER +mBackdrop)
+                .load(Constants.API_BACKDROP_HEADER +mBackdrop)
                 .placeholder(R.drawable.poster_placeholder)
                 .error(R.drawable.poster_error)
                 .into(holder.ivTrailerBackdrop);

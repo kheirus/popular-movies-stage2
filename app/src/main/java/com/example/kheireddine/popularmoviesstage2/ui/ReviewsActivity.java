@@ -22,7 +22,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.example.kheireddine.popularmoviesstage2.ui.MovieDetailsActivity.EXTRA_PARCELABLE_MOVIE;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_PARCELABLE_MOVIE;
 
 public class ReviewsActivity extends AppCompatActivity implements ReviewListAdapter.IReviewListListener {
 
@@ -38,11 +38,14 @@ public class ReviewsActivity extends AppCompatActivity implements ReviewListAdap
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reviews);
         ButterKnife.bind(this);
+        // hide the toolbar
+        getSupportActionBar().hide();
 
-        setReviewLayoutManager();
         mMovie = Parcels.unwrap(getIntent().getExtras().getParcelable(EXTRA_PARCELABLE_MOVIE));
         ReviewResults reviewResults = mMovie.getReviewResults();
         mReviewList = reviewResults.getReviews();
+
+        setReviewLayoutManager();
         setReviewRecyclerAdapter(rvReviews);
 
     }
@@ -60,7 +63,12 @@ public class ReviewsActivity extends AppCompatActivity implements ReviewListAdap
 
     @Override
     public void onReviewListClick(int clickReviewIndex) {
+        // do nothing
+    }
 
+    // click on close button
+    public void onClickImageButtonClose(View view) {
+        finish();
     }
 
 

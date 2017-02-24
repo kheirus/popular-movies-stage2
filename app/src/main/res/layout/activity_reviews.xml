@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="30dp"
-    tools:context="com.example.kheireddine.popularmoviesstage2.ui.ReviewsActivity">
+    >
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_reviews_activity"
@@ -15,6 +15,15 @@
         android:padding="20dp"
         >
     </android.support.v7.widget.RecyclerView>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_close"
+        android:layout_alignParentRight="true"
+        android:onClick="onClickImageButtonClose"
+
+        />
 
 
 </RelativeLayout>

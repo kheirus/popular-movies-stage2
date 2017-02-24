@@ -10,10 +10,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.example.kheireddine.popularmoviesstage2.R;
-import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.MoviesResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.MovieListAdapter;
+import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class MovieListActivity extends MainActivity
     RecyclerView rvMovieList;
     private List<Movie> mMoviesList;
     private MovieListAdapter mAdapter;
-    private String SORT_BY = MovieDBServiceAPI.SORT_BY_DEFAULT;
+    private String SORT_BY = Constants.SORT_BY_DEFAULT;
     private final static int NB_CELL = 2;
     private static final int TITLE_MOVIE_DEFAULT = R.string.toolbar_pop_movies;
     public static String EXTRA_MOVIE_ID = "extra_movie_id";
@@ -111,14 +111,14 @@ public class MovieListActivity extends MainActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_sort_by_popularity:
-                SORT_BY = MovieDBServiceAPI.SORT_BY_POPOLARITY;
+                SORT_BY = Constants.SORT_BY_POPOLARITY;
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_pop_movies));
                 httpGetMovies(SORT_BY);
                 return true;
 
             case R.id.item_sort_by_top_rated:
-                SORT_BY = MovieDBServiceAPI.SORT_BY_TOP_RATED;
+                SORT_BY = Constants.SORT_BY_TOP_RATED;
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_top_movies));
                 httpGetMovies(SORT_BY);

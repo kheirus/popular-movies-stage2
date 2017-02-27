@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @Parcel
-public class Trailer extends Model {
+public class Trailer {
     @SerializedName("key")
     String key;
     @SerializedName("name")

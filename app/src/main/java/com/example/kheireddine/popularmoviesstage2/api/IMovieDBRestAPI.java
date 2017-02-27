@@ -1,17 +1,12 @@
 package com.example.kheireddine.popularmoviesstage2.api;
 
-import com.example.kheireddine.popularmoviesstage2.model.Model;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.MoviesResults;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
-import com.example.kheireddine.popularmoviesstage2.utils.Constants;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 /**
  * Created by kheireddine on 30/01/17.
@@ -36,8 +31,5 @@ public interface IMovieDBRestAPI {
     @GET("movie/{id}/images")
     Call<Movie.Images> getMovieImages(@Path("id") long movieId);
 
-    @GET("movie/{id}/{detail_type}")
-    Call<Model> getMovieDetails(@Path("id") long movieId,
-                                                 @Path("detail_type") String movieDetailParam);
 
 }

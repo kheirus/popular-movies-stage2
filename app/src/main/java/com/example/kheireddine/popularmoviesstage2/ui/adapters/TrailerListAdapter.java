@@ -2,6 +2,7 @@ package com.example.kheireddine.popularmoviesstage2.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.utils.Constants;
+import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -73,6 +75,11 @@ public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.
 
     @Override
     public int getItemCount() {
+        // TODO don't understand why this happen ???
+        if (mMovie.getTrailersResults() == null){
+            return 0;
+        }
+
         return mMovie.getTrailersResults().getTrailers().size();
     }
 

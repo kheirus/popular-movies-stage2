@@ -8,26 +8,21 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
-import com.example.kheireddine.popularmoviesstage2.model.Model;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Review;
-import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapter;
-import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -42,7 +37,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
-import static com.example.kheireddine.popularmoviesstage2.utils.Constants.ExtraMovieDetails.*;
 
 public class MovieDetailsActivity extends MainActivity implements
         TrailerListAdapter.ITrailerListListener, ReviewListAdapter.IReviewListListener{
@@ -59,12 +53,10 @@ public class MovieDetailsActivity extends MainActivity implements
     @BindView(R.id.tv_reviews_fix) TextView tvReviewFix;
 
     private Movie mMovie;
-    private String mMovieTitle;
     private TrailerListAdapter mTrailerAdapter;
     private ReviewListAdapter mReviewAdapter;
-    private List<Trailer> mTrailersList;
     private List<Review> mReviewList;
-    private StringBuilder mParamsForApi;
+    private List<Trailer> mTrailerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,16 +66,15 @@ public class MovieDetailsActivity extends MainActivity implements
 
         mMovie = Parcels.unwrap(getIntent().getExtras().getParcelable(EXTRA_PARCELABLE_MOVIE));
         setViewMovie();
+
+
+        setToolBar(mMovie.getTitle(),true,true);
+        setTrailerLayoutManager();
+        setReviewLayoutManager();
+
         // fetch other details of the movie (trailers, images, reviews...)
         httpGetMovieTrailers();
         httpGetMovieImages();
-
-
-
-
-        setToolBar(mMovieTitle,true,true);
-        setTrailerLayoutManager();
-        setReviewLayoutManager();
 
     }
 
@@ -142,8 +133,8 @@ public class MovieDetailsActivity extends MainActivity implements
     //TODO You should use an Intent to open a youtube link in either the native app or a web browser of choice.
     @Override
     public void onTrailerListClick(int clickTrailerIndex) {
-        Utils.showLongToastMessage(this,"watching trailer : "+mTrailersList.get(clickTrailerIndex).getName());
-        Trailer mTrailerClicked = mTrailersList.get(clickTrailerIndex);
+        Trailer mTrailerClicked = mMovie.getTrailersResults().getTrailers().get(clickTrailerIndex);
+        Utils.showLongToastMessage(this,"watching trailer : "+mTrailerClicked.getName());
         Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_URL+mTrailerClicked.getKey()));
         startActivity(playYoutubeIntent);
     }
@@ -151,7 +142,6 @@ public class MovieDetailsActivity extends MainActivity implements
     // Click on a review
     @Override
     public void onReviewListClick(int clickReviewIndex) {
-        Log.d("pm", "onReviewListClick: "+mReviewList.get(clickReviewIndex).getAuthor());
         Intent reviewsIntent = new Intent(this, ReviewsActivity.class);
         reviewsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
         startActivity(reviewsIntent);
@@ -255,7 +245,11 @@ public class MovieDetailsActivity extends MainActivity implements
             public void onResponse(Call<TrailersResults> call, Response<TrailersResults> response) {
                 // set trailers
                 TrailersResults trailersResults= response.body();
+                Log.d(Utils.TAG, "onResponse: trailersResults = "+trailersResults);
+                //TODO BUUUUUUUUUUUUUUUUUUUUUUG
+                mTrailerList = trailersResults.getTrailers();
                 mMovie.setTrailersResults(trailersResults);
+                Log.d(Utils.TAG, "after setTrailersResults = "+mMovie.getTrailersResults().getTrailers());
                 setTrailerRecyclerAdapter(rvTrailerList);
             }
 
@@ -271,7 +265,7 @@ public class MovieDetailsActivity extends MainActivity implements
         call.enqueue(new Callback<Movie.Images>() {
             @Override
             public void onResponse(Call<Movie.Images> call, Response<Movie.Images> response) {
-                // set trailers
+                // set trailers images
                 Movie.Images images= response.body();
                 mMovie.setImages(images);
                 setTrailerRecyclerAdapter(rvTrailerList);

@@ -50,14 +50,12 @@ public class MovieListActivity extends MainActivity
         /** Check network and api_key */
         if (Utils.isOnline(mContext)) {
             if (Utils.isValidApiKey()){
-                Log.d(Utils.TAG, "api valide ");
                 httpGetMovies(SORT_BY);
             }
 
 
                 // invalid API_KEY
             else{
-                Log.d(Utils.TAG, "api invalide");
                 Utils.showDialog(MovieListActivity.this, getString(R.string.dialog_error_api_key_title), getString(R.string.dialog_error_api_key_message));
             }
 

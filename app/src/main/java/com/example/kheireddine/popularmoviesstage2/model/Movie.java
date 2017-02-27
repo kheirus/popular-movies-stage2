@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @Parcel
-public class Movie extends Model{
+public class Movie{
     @SerializedName("id")
     long id;
     @SerializedName("original_title")

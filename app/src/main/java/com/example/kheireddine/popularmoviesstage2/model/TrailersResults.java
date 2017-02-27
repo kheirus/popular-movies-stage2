@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @Parcel
-public class TrailersResults extends Model {
+public class TrailersResults {
     @SerializedName("results")
     List<Trailer> trailers;
 

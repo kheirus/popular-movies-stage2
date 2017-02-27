@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Review;
+import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
@@ -55,8 +56,6 @@ public class MovieDetailsActivity extends MainActivity implements
     private Movie mMovie;
     private TrailerListAdapter mTrailerAdapter;
     private ReviewListAdapter mReviewAdapter;
-    private List<Review> mReviewList;
-    private List<Trailer> mTrailerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +74,7 @@ public class MovieDetailsActivity extends MainActivity implements
         // fetch other details of the movie (trailers, images, reviews...)
         httpGetMovieTrailers();
         httpGetMovieImages();
+        httpGetMovieReviews();
 
     }
 
@@ -125,7 +125,7 @@ public class MovieDetailsActivity extends MainActivity implements
     }
 
     private void setReviewRecyclerAdapter(RecyclerView recyclerView){
-        mReviewAdapter = new ReviewListAdapter(mContext, mReviewList,this);
+        mReviewAdapter = new ReviewListAdapter(mContext, mMovie ,this);
         recyclerView.setAdapter(mReviewAdapter);
     }
 
@@ -194,50 +194,6 @@ public class MovieDetailsActivity extends MainActivity implements
     /**************************************************************************************************
      *                                            HTTP calls
      ************************************************************************************************/
-//    public void httpGetMovieDetails(long movieId) {
-//        //append_to_response to api
-//        mParamsForApi = new StringBuilder();
-//        mParamsForApi.append(getString(R.string.api_append_videos));
-//        mParamsForApi.append(",");
-//        mParamsForApi.append(getString(R.string.api_append_reviews));
-//        mParamsForApi.append(",");
-//        mParamsForApi.append(getString(R.string.api_append_images));
-//
-//
-//
-//        Call<Movie> call = mdbAPI.getMovieDetails(movieId,mParamsForApi.toString());
-//        call.enqueue(new Callback<Movie>() {
-//            @Override
-//            public void onResponse(Call<Movie> call, Response<Movie> response) {
-//                // retrieve the selected movie
-//                mMovie = response.body();
-//
-//                // set trailers
-//                TrailersResults trailersResults= mMovie.getTrailersResults();
-//                mTrailersList = trailersResults.getTrailers();
-//                setTrailerRecyclerAdapter(rvTrailerList);
-//
-//                //set reviews
-//                ReviewResults reviewResults = mMovie.getReviewResults();
-//                mReviewList = reviewResults.getReviews();
-//                setReviewRecyclerAdapter(rvReviewList);
-//                int totalReviews = mMovie.getReviewResults().getTotalReviews();
-//                if (totalReviews==0){
-//                    tvReviewCount.setVisibility(View.GONE);
-//                    tvReviewFix.setVisibility(View.GONE);
-//                }
-//                else {
-//                    tvReviewCount.setText("("+totalReviews+")");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Movie> call, Throwable t) {
-//                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
-//            }
-//        });
-//    }
-
     private void httpGetMovieTrailers(){
         Call<TrailersResults> call = mdbAPI.getMovieTrailers(mMovie.getId());
         call.enqueue(new Callback<TrailersResults>() {
@@ -245,11 +201,7 @@ public class MovieDetailsActivity extends MainActivity implements
             public void onResponse(Call<TrailersResults> call, Response<TrailersResults> response) {
                 // set trailers
                 TrailersResults trailersResults= response.body();
-                Log.d(Utils.TAG, "onResponse: trailersResults = "+trailersResults);
-                //TODO BUUUUUUUUUUUUUUUUUUUUUUG
-                mTrailerList = trailersResults.getTrailers();
                 mMovie.setTrailersResults(trailersResults);
-                Log.d(Utils.TAG, "after setTrailersResults = "+mMovie.getTrailersResults().getTrailers());
                 setTrailerRecyclerAdapter(rvTrailerList);
             }
 
@@ -278,7 +230,24 @@ public class MovieDetailsActivity extends MainActivity implements
         });
     }
 
+    private void httpGetMovieReviews(){
+        Call<ReviewResults> call = mdbAPI.getMovieReviews(mMovie.getId());
+        call.enqueue(new Callback<ReviewResults>() {
+            @Override
+            public void onResponse(Call<ReviewResults> call, Response<ReviewResults> response) {
+                // set reviews
+                ReviewResults reviewsResults= response.body();
+                mMovie.setReviewResults(reviewsResults);
+                tvReviewCount.setText(String.valueOf("("+mMovie.getReviewResults().getTotalReviews())+")");
+                setReviewRecyclerAdapter(rvReviewList);
+            }
 
+            @Override
+            public void onFailure(Call<ReviewResults> call, Throwable t) {
+                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
+            }
+        });
+    }
 
 
 }

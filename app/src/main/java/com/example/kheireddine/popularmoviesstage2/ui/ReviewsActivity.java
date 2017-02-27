@@ -24,10 +24,9 @@ import butterknife.ButterKnife;
 
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_PARCELABLE_MOVIE;
 
-public class ReviewsActivity extends AppCompatActivity implements ReviewListAdapter.IReviewListListener {
+public class ReviewsActivity extends AppCompatActivity {
 
     @BindView(R.id.rv_reviews_activity) RecyclerView rvReviews;
-    private List<Review> mReviewList;
     private ReviewsActivityAdapter mReviewAdapter;
     private Movie mMovie;
 
@@ -42,8 +41,6 @@ public class ReviewsActivity extends AppCompatActivity implements ReviewListAdap
         getSupportActionBar().hide();
 
         mMovie = Parcels.unwrap(getIntent().getExtras().getParcelable(EXTRA_PARCELABLE_MOVIE));
-        ReviewResults reviewResults = mMovie.getReviewResults();
-        mReviewList = reviewResults.getReviews();
 
         setReviewLayoutManager();
         setReviewRecyclerAdapter(rvReviews);
@@ -57,13 +54,8 @@ public class ReviewsActivity extends AppCompatActivity implements ReviewListAdap
     }
 
     private void setReviewRecyclerAdapter(RecyclerView recyclerView){
-        mReviewAdapter = new ReviewsActivityAdapter(this, mReviewList);
+        mReviewAdapter = new ReviewsActivityAdapter(this, mMovie);
         recyclerView.setAdapter(mReviewAdapter);
-    }
-
-    @Override
-    public void onReviewListClick(int clickReviewIndex) {
-        // do nothing
     }
 
     // click on close button
@@ -74,8 +66,8 @@ public class ReviewsActivity extends AppCompatActivity implements ReviewListAdap
 
     private class ReviewsActivityAdapter extends ReviewListAdapter{
 
-        public ReviewsActivityAdapter(Context mContext, List<Review> Reviews) {
-            super(mContext, Reviews,null);
+        public ReviewsActivityAdapter(Context mContext, Movie movie) {
+            super(mContext, movie, null);
         }
 
         @Override

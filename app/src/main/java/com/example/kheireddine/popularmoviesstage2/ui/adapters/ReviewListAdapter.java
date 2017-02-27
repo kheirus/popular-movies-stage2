@@ -13,6 +13,7 @@ import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Review;
+import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
@@ -29,7 +30,7 @@ import butterknife.ButterKnife;
 
 public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.ReviewViewHolder> {
     private Context mContext;
-    private List<Review> Reviews;
+    private Movie mMovie;
     final private IReviewListListener mOnClickListener;
 
     /**
@@ -39,9 +40,9 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Re
         void onReviewListClick(int clickReviewIndex);
     }
 
-    public ReviewListAdapter(Context mContext, List<Review> Reviews, IReviewListListener listener) {
+    public ReviewListAdapter(Context mContext, Movie movie, IReviewListListener listener) {
         this.mContext = mContext;
-        this.Reviews = Reviews;
+        this.mMovie = movie;
         this.mOnClickListener = listener;
     }
 
@@ -59,7 +60,8 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Re
 
     @Override
     public void onBindViewHolder(ReviewViewHolder holder, int position) {
-        Review mReview = Reviews.get(position);
+        ReviewResults reviewResults = mMovie.getReviewResults();
+        Review mReview = reviewResults.getReviews().get(position);
 
         holder.tvReviewAuthor.setText(mReview.getAuthor()+" :");
         holder.tvReviewContent.setText(mReview.getContent());
@@ -67,7 +69,10 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Re
 
     @Override
     public int getItemCount() {
-        return Reviews.size();
+        if (mMovie.getReviewResults() == null){
+            return 0;
+        }
+        return mMovie.getReviewResults().getReviews().size();
     }
 
 
@@ -84,8 +89,15 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Re
 
         @Override
         public void onClick(View v) {
-            int clickPosition = getAdapterPosition();
-            mOnClickListener.onReviewListClick(clickPosition);
+            // If we're within the ReveiwsActivity (all reviews displayed) we don't need to click at all.
+            if (mOnClickListener == null){
+                // do nothing
+            }
+            else {
+                int clickPosition = getAdapterPosition();
+                mOnClickListener.onReviewListClick(clickPosition);
+            }
+
         }
     }
 

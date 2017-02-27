@@ -18,8 +18,7 @@ import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
-import com.example.kheireddine.popularmoviesstage2.model.Review;
-import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
+import com.example.kheireddine.popularmoviesstage2.model.ReviewsResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
@@ -28,8 +27,6 @@ import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -231,19 +228,19 @@ public class MovieDetailsActivity extends MainActivity implements
     }
 
     private void httpGetMovieReviews(){
-        Call<ReviewResults> call = mdbAPI.getMovieReviews(mMovie.getId());
-        call.enqueue(new Callback<ReviewResults>() {
+        Call<ReviewsResults> call = mdbAPI.getMovieReviews(mMovie.getId());
+        call.enqueue(new Callback<ReviewsResults>() {
             @Override
-            public void onResponse(Call<ReviewResults> call, Response<ReviewResults> response) {
+            public void onResponse(Call<ReviewsResults> call, Response<ReviewsResults> response) {
                 // set reviews
-                ReviewResults reviewsResults= response.body();
-                mMovie.setReviewResults(reviewsResults);
-                tvReviewCount.setText(String.valueOf("("+mMovie.getReviewResults().getTotalReviews())+")");
+                ReviewsResults reviewsResults= response.body();
+                mMovie.setReviewsResults(reviewsResults);
+                tvReviewCount.setText(String.valueOf("("+mMovie.getReviewsResults().getTotalReviews())+")");
                 setReviewRecyclerAdapter(rvReviewList);
             }
 
             @Override
-            public void onFailure(Call<ReviewResults> call, Throwable t) {
+            public void onFailure(Call<ReviewsResults> call, Throwable t) {
                 Log.e(Utils.TAG, "onFailure: "+t.getMessage());
             }
         });

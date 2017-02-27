@@ -2,7 +2,7 @@ package com.example.kheireddine.popularmoviesstage2.api;
 
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.MoviesResults;
-import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
+import com.example.kheireddine.popularmoviesstage2.model.ReviewsResults;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 
 import retrofit2.Call;
@@ -27,7 +27,7 @@ public interface IMovieDBRestAPI {
     Call<TrailersResults> getMovieTrailers(@Path("id") long movieId);
 
     @GET("movie/{id}/reviews")
-    Call<ReviewResults> getMovieReviews(@Path("id") long movieId);
+    Call<ReviewsResults> getMovieReviews(@Path("id") long movieId);
 
     @GET("movie/{id}/images")
     Call<Movie.Images> getMovieImages(@Path("id") long movieId);

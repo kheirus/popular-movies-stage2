@@ -31,7 +31,7 @@ public class Movie{
     @SerializedName("videos")
     TrailersResults trailersResults;
     @SerializedName("reviews")
-    ReviewResults reviewResults;
+    ReviewsResults reviewsResults;
     @SerializedName("images")
     Images images;
 
@@ -95,16 +95,16 @@ public class Movie{
         return images;
     }
 
-    public ReviewResults getReviewResults() {
-        return reviewResults;
+    public ReviewsResults getReviewsResults() {
+        return reviewsResults;
     }
 
     public void setTrailersResults(TrailersResults trailersResults) {
         this.trailersResults = trailersResults;
     }
 
-    public void setReviewResults(ReviewResults reviewResults) {
-        this.reviewResults = reviewResults;
+    public void setReviewsResults(ReviewsResults reviewsResults) {
+        this.reviewsResults = reviewsResults;
     }
 
     public void setImages(Images images) {

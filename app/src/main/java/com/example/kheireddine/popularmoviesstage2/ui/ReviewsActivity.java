@@ -11,13 +11,9 @@ import android.view.ViewGroup;
 
 import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
-import com.example.kheireddine.popularmoviesstage2.model.Review;
-import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
 
 import org.parceler.Parcels;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

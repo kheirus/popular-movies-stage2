@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 @Parcel
-public class ReviewResults {
+public class ReviewsResults {
     @SerializedName("results")
     List<Review> reviews;
     @SerializedName("total_results")

@@ -2,24 +2,15 @@ package com.example.kheireddine.popularmoviesstage2.ui.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
-import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.Review;
-import com.example.kheireddine.popularmoviesstage2.model.ReviewResults;
-import com.example.kheireddine.popularmoviesstage2.model.Trailer;
-import com.example.kheireddine.popularmoviesstage2.utils.Utils;
-import com.squareup.picasso.Picasso;
-
-import java.util.List;
-import java.util.Random;
+import com.example.kheireddine.popularmoviesstage2.model.ReviewsResults;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,8 +51,8 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Re
 
     @Override
     public void onBindViewHolder(ReviewViewHolder holder, int position) {
-        ReviewResults reviewResults = mMovie.getReviewResults();
-        Review mReview = reviewResults.getReviews().get(position);
+        ReviewsResults reviewsResults = mMovie.getReviewsResults();
+        Review mReview = reviewsResults.getReviews().get(position);
 
         holder.tvReviewAuthor.setText(mReview.getAuthor()+" :");
         holder.tvReviewContent.setText(mReview.getContent());
@@ -69,10 +60,10 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Re
 
     @Override
     public int getItemCount() {
-        if (mMovie.getReviewResults() == null){
+        if (mMovie.getReviewsResults() == null){
             return 0;
         }
-        return mMovie.getReviewResults().getReviews().size();
+        return mMovie.getReviewsResults().getReviews().size();
     }
 
 

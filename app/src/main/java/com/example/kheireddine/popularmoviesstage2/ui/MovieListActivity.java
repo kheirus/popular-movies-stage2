@@ -106,6 +106,7 @@ public class MovieListActivity extends MainActivity
      */
     @Override
     public void onMovieListClick(int clickMovieIndex, int type) {
+        //TODO BUG BUG BUG when favourite movie is selected the position is false
         Movie mMovieClicked = mMoviesList.get(clickMovieIndex);
         Intent movieDetailsIntent = new Intent(MovieListActivity.this, MovieDetailsActivity.class);
         int movieFromType;
@@ -251,6 +252,7 @@ public class MovieListActivity extends MainActivity
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mAdapter.swapCursor(data);
         setRecyclerAdapter(rvMovieList, data);
+        //TODO create function that cast the cursor on list of movie
     }
 
     @Override

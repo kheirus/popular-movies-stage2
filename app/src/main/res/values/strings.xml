@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">PopularMoviesStage2</string>
+    <string name="app_name">Popular Movies </string>
     <string name="toolbar_pop_movies">Popular Movies</string>
     <string name="toolbar_top_movies">Top rated Movies</string>
+    <string name="toolbar_favourite_movies">My favourite Movies</string>
     <string name="dialog_error_api_key_title">ERROR API KEY!</string>
     <string name="dialog_error_api_key_message">Please check your api_key</string>
     <string name="dialog_error_network_title">ERROR NETWORK!</string>

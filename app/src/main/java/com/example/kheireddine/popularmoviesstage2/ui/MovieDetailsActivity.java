@@ -1,5 +1,6 @@
 package com.example.kheireddine.popularmoviesstage2.ui;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.data.MovieContract;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.ReviewsResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
@@ -34,10 +36,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.*;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
+
 
 public class MovieDetailsActivity extends MainActivity implements
         TrailerListAdapter.ITrailerListListener, ReviewListAdapter.IReviewListListener{
+
     @BindView(R.id.iv_backdrop) ImageView ivBackdrop;
     @BindView(R.id.iv_poster_detail) ImageView ivPosetr;
     @BindView(R.id.tv_title_detail) TextView tvTitle;
@@ -131,7 +137,7 @@ public class MovieDetailsActivity extends MainActivity implements
     @Override
     public void onTrailerListClick(int clickTrailerIndex) {
         Trailer mTrailerClicked = mMovie.getTrailersResults().getTrailers().get(clickTrailerIndex);
-        Utils.showLongToastMessage(this,"watching trailer : "+mTrailerClicked.getName());
+        Utils.showLongToastMessage(this, TOAST_WATCHING_TRAILER_ + mTrailerClicked.getName());
         Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_URL+mTrailerClicked.getKey()));
         startActivity(playYoutubeIntent);
     }
@@ -162,6 +168,7 @@ public class MovieDetailsActivity extends MainActivity implements
             case R.id.action_favourite:
 
                 if(item.isChecked()){
+                    //CHECKED
                     item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_fill));
                     item.setChecked(false);
                     final Animation animScale = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale);
@@ -171,6 +178,7 @@ public class MovieDetailsActivity extends MainActivity implements
                 }
 
                 else {
+                    //UNCHECKED
                     item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite));
                     item.setChecked(true);
                     removeFromFavourite();
@@ -180,8 +188,21 @@ public class MovieDetailsActivity extends MainActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void addToFavourite (){
-        // TODO
+    /** Adding movie to favourite movies */
+    private void addToFavourite () {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_TITLE, mMovie.getTitle());
+        contentValues.put(COLUMN_RATING, mMovie.getRating());
+        contentValues.put(COLUMN_POSTER, mMovie.getPoster());
+
+        Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
+
+        if (uri != null) {
+            Log.d(Utils.TAG, "addToFavourite: " + uri);
+        }
+
+        // TODO : add favourite movie in shared preferences as boolean true matched with its id, that allows me to retrieve the value
+        // of the button if it is checked or not
     }
 
     private void removeFromFavourite (){

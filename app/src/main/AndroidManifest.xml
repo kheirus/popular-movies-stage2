@@ -11,6 +11,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".ui.MovieListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,13 +19,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".ui.MovieDetailsActivity" />
+
         <activity
             android:name=".ui.MainActivity"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.ReviewsActivity"
             android:theme="@style/Theme.Transparent"/>
+
+        <provider
+            android:authorities="com.example.kheireddine.popularmoviesstage2"
+            android:name=".data.MovieContentProvider"
+            android:exported="false" />
+
     </application>
 
 </manifest>

@@ -13,7 +13,7 @@ import retrofit2.http.Path;
  * Created by kheireddine on 30/01/17.
  */
 
-public interface IMovieDBRestAPI {
+public interface ITheMovieDbRestAPI {
     //http://api.themoviedb.org/3/movie/popular?api_key=999999999999999999
     @GET("movie/{sort_by}")
     Call<MoviesResults> getPopluarMovies(@Path("sort_by") String sortBy);

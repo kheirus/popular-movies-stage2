@@ -5,8 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.example.kheireddine.popularmoviesstage2.api.IMovieDBRestAPI;
-import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
+import com.example.kheireddine.popularmoviesstage2.api.ITheMovieDbRestAPI;
+import com.example.kheireddine.popularmoviesstage2.api.TheMovieDbServiceAPI;
 
 
 /**
@@ -15,7 +15,7 @@ import com.example.kheireddine.popularmoviesstage2.api.MovieDBServiceAPI;
 public class MainActivity extends AppCompatActivity {
     protected Context mContext;
 
-    protected IMovieDBRestAPI mdbAPI;
+    protected ITheMovieDbRestAPI mdbAPI;
 
 
     @Override
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mContext = getBaseContext();
-        mdbAPI = MovieDBServiceAPI.createService(IMovieDBRestAPI.class);
+        mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
     }
 
     @Override

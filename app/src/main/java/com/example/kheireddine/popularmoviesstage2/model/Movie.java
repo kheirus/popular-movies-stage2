@@ -110,4 +110,16 @@ public class Movie{
     public void setImages(Images images) {
         this.images = images;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
 }

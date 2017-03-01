@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by kheireddine on 30/01/17.
  */
-public class MovieDBServiceAPI {
+public class TheMovieDbServiceAPI {
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
     private static Retrofit retrofit;

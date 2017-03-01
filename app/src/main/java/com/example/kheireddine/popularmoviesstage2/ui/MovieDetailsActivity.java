@@ -25,6 +25,7 @@ import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapter;
+import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -59,6 +60,7 @@ public class MovieDetailsActivity extends MainActivity implements
     private Movie mMovie;
     private TrailerListAdapter mTrailerAdapter;
     private ReviewListAdapter mReviewAdapter;
+    private int movieFromType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,8 @@ public class MovieDetailsActivity extends MainActivity implements
         ButterKnife.bind(this);
 
         mMovie = Parcels.unwrap(getIntent().getExtras().getParcelable(EXTRA_PARCELABLE_MOVIE));
+        movieFromType = getIntent().getExtras().getInt(EXTRA_MOVIE_FROM_TYPE);
+        Log.d(Utils.TAG, "Movie type = "+movieFromType);
         setViewMovie();
 
 
@@ -75,9 +79,17 @@ public class MovieDetailsActivity extends MainActivity implements
         setReviewLayoutManager();
 
         // fetch other details of the movie (trailers, images, reviews...)
-        httpGetMovieTrailers();
-        httpGetMovieImages();
-        httpGetMovieReviews();
+        if (movieFromType==MOVIE_FROM_LIST ||
+                (movieFromType==MOVIE_FROM_CURSOR && Utils.isOnline(this))){
+            /*  We do the http request only when the movie was selected from list of movies (that comes from internet)
+             *  OR
+             *  When the movie was selected from movies comes from database BUT the internet is available to requesting ThMDB API
+             * */
+            httpGetMovieTrailers();
+            httpGetMovieImages();
+            httpGetMovieReviews();
+        }
+
 
     }
 

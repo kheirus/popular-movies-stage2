@@ -32,6 +32,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
+
 public class MovieListActivity extends MainActivity
         implements MovieListAdapter.IMovieListListener, LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -87,11 +89,12 @@ public class MovieListActivity extends MainActivity
         rvMovieList.setHasFixedSize(true);
     }
 
+    // Adapter with a list of movie as a data
     private void setRecyclerAdapter(RecyclerView recyclerView, List<Movie> movieList) {
         mAdapter = new MovieListAdapter(mContext, movieList, this);
         recyclerView.setAdapter(mAdapter);
     }
-
+    // Adapter with Cursor as a data
     private void setRecyclerAdapter(RecyclerView recyclerView, Cursor cursor) {
         mAdapter = new MovieListAdapter(mContext, cursor, this);
         recyclerView.setAdapter(mAdapter);
@@ -102,11 +105,25 @@ public class MovieListActivity extends MainActivity
      * Click on a movie
      */
     @Override
-    public void onMovieListClick(int clickMovieIndex) {
+    public void onMovieListClick(int clickMovieIndex, int type) {
         Movie mMovieClicked = mMoviesList.get(clickMovieIndex);
         Intent movieDetailsIntent = new Intent(MovieListActivity.this, MovieDetailsActivity.class);
-        movieDetailsIntent.putExtra(Constants.EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovieClicked));
+        int movieFromType;
 
+        switch (type){
+            case MOVIE_FROM_LIST:
+                movieFromType = MOVIE_FROM_LIST;
+                break;
+            case MOVIE_FROM_CURSOR:
+                movieFromType = MOVIE_FROM_CURSOR;
+                break;
+
+            default:
+                return;
+        }
+
+        movieDetailsIntent.putExtra(Constants.EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovieClicked));
+        movieDetailsIntent.putExtra(EXTRA_MOVIE_FROM_TYPE, movieFromType);
         startActivity(movieDetailsIntent);
     }
 
@@ -185,7 +202,6 @@ public class MovieListActivity extends MainActivity
      ************************************************************************************************/
     private void dbGetFavouriteMovies() {
         getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MovieListActivity.this);
-        Log.d(Utils.TAG, "dbGetFavouriteMovies: ");
     }
 
 
@@ -207,8 +223,6 @@ public class MovieListActivity extends MainActivity
 
             @Override
             public Cursor loadInBackground() {
-                Log.d(Utils.TAG, " loadInBackground: ");
-
                 try{
                     Cursor cursor = getContentResolver().query(MovieContract.FavouriteMovieEntry.CONTENT_URI,
                             null,
@@ -219,19 +233,16 @@ public class MovieListActivity extends MainActivity
                     return cursor;
 
                 }catch (Exception e){
-
                     Log.e(Utils.TAG, Constants.EXCEPTION_RESOLVER_QUERY);
                     e.printStackTrace();
                     return null;
                 }
-
             }
 
             public void deliverResult(Cursor data) {
                 mMovieData = data;
                 super.deliverResult(data);
             }
-
         };
 
     }

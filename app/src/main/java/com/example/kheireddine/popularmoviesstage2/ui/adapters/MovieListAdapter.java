@@ -3,7 +3,6 @@ package com.example.kheireddine.popularmoviesstage2.ui.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
-import com.example.kheireddine.popularmoviesstage2.data.MovieContract;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.utils.Constants;
-import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -42,7 +39,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     public interface IMovieListListener {
         //TODO add a second parameter to know wich adapter are clicked : cursor or movielist
         // I can just add the Intent of the next activity (DetailsActivity) as a String
-        void onMovieListClick(int clickMovieIndex);
+        void onMovieListClick(int clickMovieIndex, int type);
     }
 
     public MovieListAdapter(Context mContext, List<Movie> moviesList, IMovieListListener listener) {
@@ -152,12 +149,16 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
         @Override
         public void onClick(View v) {
+            int type;
+
             if (isCursor){
-                //TODO finish the click on a movie when data is retrieved from db
-                return;
+                type = Constants.MOVIE_FROM_CURSOR;
+            } else {
+                type = Constants.MOVIE_FROM_LIST;
             }
+
             int clickedPosition = getAdapterPosition();
-            mOnClickListener.onMovieListClick(clickedPosition);
+            mOnClickListener.onMovieListClick(clickedPosition, type);
         }
     }
 

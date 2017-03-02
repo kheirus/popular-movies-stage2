@@ -27,15 +27,11 @@ public abstract class Constants {
     public static final int MOVIE_FROM_LIST = 1;
     public static final int MOVIE_FROM_CURSOR = 2;
 
-
     /**
      * Constants for extras intents
      */
     public static final String EXTRA_PARCELABLE_MOVIE ="extra_parcelable_movie";
     public static final String EXTRA_MOVIE_FROM_TYPE ="clicked_movie_from";
-
-
-
 
     /**
      * Constants for exception

@@ -2,6 +2,7 @@ package com.example.kheireddine.popularmoviesstage2.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -18,14 +19,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
-import com.example.kheireddine.popularmoviesstage2.data.MovieContract;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.ReviewsResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapter;
-import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -62,6 +61,9 @@ public class MovieDetailsActivity extends MainActivity implements
     private ReviewListAdapter mReviewAdapter;
     private int movieFromType;
     private StringBuilder mParamsForApi;
+    private static boolean isFavBtnChecked;
+    private final static boolean BTN_CHECKED = true;
+    private final static boolean BTN_UNCHECKED = false;
 
 
     @Override
@@ -88,6 +90,8 @@ public class MovieDetailsActivity extends MainActivity implements
             httpGetMovieDetails(mMovie.getId());
         }
 
+        // getting value of button favourite (checked or unchecked)
+        isFavBtnChecked = getStateChecking();
 
     }
 
@@ -156,7 +160,6 @@ public class MovieDetailsActivity extends MainActivity implements
         reviewsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
         startActivity(reviewsIntent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out );
-
     }
 
     /**
@@ -166,6 +169,16 @@ public class MovieDetailsActivity extends MainActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.details_movie_menu, menu);
+        MenuItem item = menu.getItem(0);
+        if (isFavBtnChecked){
+            item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_fill));
+            item.setChecked(BTN_CHECKED);
+
+        } else {
+            item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_empty));
+            item.setChecked(BTN_UNCHECKED);
+        }
+
         return true;
     }
 
@@ -173,22 +186,19 @@ public class MovieDetailsActivity extends MainActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_favourite:
-
                 if(item.isChecked()){
                     //CHECKED
+                    item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_empty));
+                    item.setChecked(BTN_UNCHECKED);
+                    removeFromFavourite();
+                    break;
+                } else {
+                    //UNCHECKED
                     item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_fill));
-                    item.setChecked(false);
                     final Animation animScale = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale);
                     ivHidenHeart.startAnimation(animScale);
+                    item.setChecked(BTN_CHECKED);
                     addToFavourite();
-                    break;
-                }
-
-                else {
-                    //UNCHECKED
-                    item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite));
-                    item.setChecked(true);
-                    removeFromFavourite();
                     break;
                 }
         }
@@ -213,12 +223,37 @@ public class MovieDetailsActivity extends MainActivity implements
             Log.d(Utils.TAG, "addToFavourite: " + uri);
         }
 
+        setStateChecking(true);
+
         // TODO : add favourite movie in shared preferences as boolean true matched with its id, that allows me to retrieve the value
         // of the button if it is checked or not
     }
 
     private void removeFromFavourite (){
         // TODO
+        setStateChecking(false);
+
+    }
+
+    /**
+     * TODO : do it on a detached thread
+     * Store value of favourite button as a shared preferences
+     * */
+    private void setStateChecking(boolean isChecked){
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(mMovie.getTitle(), isChecked);
+        editor.commit();
+    }
+
+    /**
+     * TODO : do it on a detached thread
+     * getting value of favourite button
+     * */
+    private boolean getStateChecking(){
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        boolean isChecked = sharedPreferences.getBoolean(mMovie.getTitle(), false);
+        return isChecked;
     }
 
     /**************************************************************************************************

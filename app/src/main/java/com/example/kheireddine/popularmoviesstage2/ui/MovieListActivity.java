@@ -32,6 +32,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.*;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
 
 public class MovieListActivity extends MainActivity
@@ -82,7 +83,7 @@ public class MovieListActivity extends MainActivity
 
     public void setLayoutManager() {
         //StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        //
+
         int nbCell = Utils.calculateNoOfColumns(mContext);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, nbCell);
         rvMovieList.setLayoutManager(gridLayoutManager);
@@ -92,11 +93,6 @@ public class MovieListActivity extends MainActivity
     // Adapter with a list of movie as a data
     private void setRecyclerAdapter(RecyclerView recyclerView, List<Movie> movieList) {
         mAdapter = new MovieListAdapter(mContext, movieList, this);
-        recyclerView.setAdapter(mAdapter);
-    }
-    // Adapter with Cursor as a data
-    private void setRecyclerAdapter(RecyclerView recyclerView, Cursor cursor) {
-        mAdapter = new MovieListAdapter(mContext, cursor, this);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -206,7 +202,7 @@ public class MovieListActivity extends MainActivity
     }
 
 
-    // Loader
+    // Loader that fetch movies from database due to ContentProvider
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new AsyncTaskLoader<Cursor>(this) {
@@ -250,16 +246,40 @@ public class MovieListActivity extends MainActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
-        setRecyclerAdapter(rvMovieList, data);
         //TODO create function that cast the cursor on list of movie
+
+        mMoviesList = cursorToListMovies(data);
+        setRecyclerAdapter(rvMovieList, mMoviesList);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
     }
 
+
+    /**
+     * Method that fill a list of movies with data retrieved from a cursor
+     * @param cursor Data retrieved from database
+     * @return List of movies
+     * */
+    public List<Movie> cursorToListMovies(Cursor cursor){
+        List<Movie> listMovies = new ArrayList<>();
+        while (cursor.moveToNext()){
+            Movie movie = new Movie();
+            movie.setFavourite(true);
+            movie.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
+            movie.setPoster(cursor.getString(cursor.getColumnIndex(COLUMN_POSTER)));
+            movie.setBackdrop(cursor.getString(cursor.getColumnIndex(COLUMN_BACKDROP)));
+            movie.setTitle(cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)));
+            movie.setRating(cursor.getString(cursor.getColumnIndex(COLUMN_RATING)));
+            movie.setReleaseDate(cursor.getString(cursor.getColumnIndex(COLUMN_RELEASE_DATE)));
+            movie.setRuntime(cursor.getString(cursor.getColumnIndex(COLUMN_RUNTIME)));
+            movie.setSynopsis(cursor.getString(cursor.getColumnIndex(COLUMN_SYNOPSIS)));
+
+            listMovies.add(movie);
+        }
+        return listMovies;
+    }
 
 }
 

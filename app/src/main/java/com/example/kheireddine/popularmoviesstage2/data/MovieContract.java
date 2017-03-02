@@ -34,6 +34,7 @@ public final class MovieContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVOURITE_MOVIES).build();
 
         public static final String TABLE_NAME = "favourite_movies";
+        public static final String COLUMN_ID = "id";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_POSTER = "poster";
         public static final String COLUMN_BACKDROP = "backdrop";
@@ -41,7 +42,6 @@ public final class MovieContract {
         public static final String COLUMN_RATING = "rating";
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_RUNTIME = "runtime";
-        public static final String COLUMN_VIDEOS = "trailers";
-        public static final String COLUMN_IMAGES = "images";
+
     }
 }

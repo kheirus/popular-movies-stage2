@@ -35,6 +35,8 @@ public class Movie{
     @SerializedName("images")
     Images images;
 
+    boolean isFavourite;
+
     @Parcel
     public static class Images {
         @SerializedName("backdrops")
@@ -121,5 +123,33 @@ public class Movie{
 
     public void setPoster(String poster) {
         this.poster = poster;
+    }
+
+    public void setBackdrop(String backdrop) {
+        this.backdrop = backdrop;
+    }
+
+    public void setSynopsis(String synopsis) {
+        this.synopsis = synopsis;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
+    }
+
+    public boolean isFavourite() {
+        return isFavourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        isFavourite = favourite;
     }
 }

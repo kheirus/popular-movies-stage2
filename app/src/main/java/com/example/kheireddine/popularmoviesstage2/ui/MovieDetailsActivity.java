@@ -61,6 +61,8 @@ public class MovieDetailsActivity extends MainActivity implements
     private TrailerListAdapter mTrailerAdapter;
     private ReviewListAdapter mReviewAdapter;
     private int movieFromType;
+    private StringBuilder mParamsForApi;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +72,7 @@ public class MovieDetailsActivity extends MainActivity implements
 
         mMovie = Parcels.unwrap(getIntent().getExtras().getParcelable(EXTRA_PARCELABLE_MOVIE));
         movieFromType = getIntent().getExtras().getInt(EXTRA_MOVIE_FROM_TYPE);
-        Log.d(Utils.TAG, "Movie type = "+movieFromType);
         setViewMovie();
-
 
         setToolBar(mMovie.getTitle(),true,true);
         setTrailerLayoutManager();
@@ -85,9 +85,7 @@ public class MovieDetailsActivity extends MainActivity implements
              *  OR
              *  When the movie was selected from movies comes from database BUT the internet is available to requesting ThMDB API
              * */
-            httpGetMovieTrailers();
-            httpGetMovieImages();
-            httpGetMovieReviews();
+            httpGetMovieDetails(mMovie.getId());
         }
 
 
@@ -105,8 +103,6 @@ public class MovieDetailsActivity extends MainActivity implements
         tvSynopsis.setText(mMovie.getSynopsis());
         // set rating
         tvRating.setText(mMovie.getRating());
-        // set the runtime
-        tvRuntime.setText(Utils.timeToDisplay(mMovie.getRuntime()));
         // set the poster
         Picasso.with(mContext)
                 .load(API_POSTER_HEADER_LARGE +mMovie.getPoster())
@@ -119,7 +115,6 @@ public class MovieDetailsActivity extends MainActivity implements
                 .placeholder(R.drawable.poster_placeholder)
                 .error(R.drawable.poster_error)
                 .into(ivBackdrop);
-
     }
 
     private void setTrailerLayoutManager() {
@@ -203,9 +198,14 @@ public class MovieDetailsActivity extends MainActivity implements
     /** Adding movie to favourite movies */
     private void addToFavourite () {
         ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_ID, mMovie.getId());
         contentValues.put(COLUMN_TITLE, mMovie.getTitle());
         contentValues.put(COLUMN_RATING, mMovie.getRating());
         contentValues.put(COLUMN_POSTER, mMovie.getPoster());
+        contentValues.put(COLUMN_BACKDROP, mMovie.getBackdrop());
+        contentValues.put(COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
+        contentValues.put(COLUMN_RUNTIME, mMovie.getRuntime());
+        contentValues.put(COLUMN_SYNOPSIS, mMovie.getSynopsis());
 
         Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
 
@@ -224,57 +224,41 @@ public class MovieDetailsActivity extends MainActivity implements
     /**************************************************************************************************
      *                                            HTTP calls
      ************************************************************************************************/
-    private void httpGetMovieTrailers(){
-        Call<TrailersResults> call = mdbAPI.getMovieTrailers(mMovie.getId());
-        call.enqueue(new Callback<TrailersResults>() {
+
+    public void httpGetMovieDetails(long movieId) {
+        //append_to_response to api
+        mParamsForApi = new StringBuilder();
+        mParamsForApi.append(getString(R.string.api_append_videos));
+        mParamsForApi.append(",");
+        mParamsForApi.append(getString(R.string.api_append_reviews));
+        mParamsForApi.append(",");
+        mParamsForApi.append(getString(R.string.api_append_images));
+
+        Call<Movie> call = mdbAPI.getMovieDetails(movieId,mParamsForApi.toString());
+        call.enqueue(new Callback<Movie>() {
             @Override
-            public void onResponse(Call<TrailersResults> call, Response<TrailersResults> response) {
+            public void onResponse(Call<Movie> call, Response<Movie> response) {
+                // retrieve the selected movie
+                mMovie = response.body();
+
                 // set trailers
-                TrailersResults trailersResults= response.body();
+                TrailersResults trailersResults= mMovie.getTrailersResults();
                 mMovie.setTrailersResults(trailersResults);
                 setTrailerRecyclerAdapter(rvTrailerList);
-            }
 
-            @Override
-            public void onFailure(Call<TrailersResults> call, Throwable t) {
-                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
-            }
-        });
-    }
-
-    private void httpGetMovieImages(){
-        Call<Movie.Images> call = mdbAPI.getMovieImages(mMovie.getId());
-        call.enqueue(new Callback<Movie.Images>() {
-            @Override
-            public void onResponse(Call<Movie.Images> call, Response<Movie.Images> response) {
-                // set trailers images
-                Movie.Images images= response.body();
-                mMovie.setImages(images);
-                setTrailerRecyclerAdapter(rvTrailerList);
-            }
-
-            @Override
-            public void onFailure(Call<Movie.Images> call, Throwable t) {
-                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
-            }
-        });
-    }
-
-    private void httpGetMovieReviews(){
-        Call<ReviewsResults> call = mdbAPI.getMovieReviews(mMovie.getId());
-        call.enqueue(new Callback<ReviewsResults>() {
-            @Override
-            public void onResponse(Call<ReviewsResults> call, Response<ReviewsResults> response) {
-                // set reviews
-                ReviewsResults reviewsResults= response.body();
+                //set reviews
+                ReviewsResults reviewsResults= mMovie.getReviewsResults();
                 mMovie.setReviewsResults(reviewsResults);
                 tvReviewCount.setText(String.valueOf("("+mMovie.getReviewsResults().getTotalReviews())+")");
                 setReviewRecyclerAdapter(rvReviewList);
+
+                //set runtime
+                tvRuntime.setText(Utils.timeToDisplay(mMovie.getRuntime()));
             }
 
             @Override
-            public void onFailure(Call<ReviewsResults> call, Throwable t) {
-                Log.e(Utils.TAG, "onFailure: "+t.getMessage());
+            public void onFailure(Call<Movie> call, Throwable t) {
+                Log.d(Utils.TAG, "onFailure: "+t.getMessage());
             }
         });
     }

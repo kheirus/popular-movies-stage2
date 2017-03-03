@@ -66,12 +66,10 @@ public class MovieListActivity extends MainActivity
                 httpGetMovies(SORT_BY);
             }
 
-
             // invalid API_KEY
             else{
                 Utils.showDialog(MovieListActivity.this, getString(R.string.dialog_error_api_key_title), getString(R.string.dialog_error_api_key_message));
             }
-
 
         }
         // No network

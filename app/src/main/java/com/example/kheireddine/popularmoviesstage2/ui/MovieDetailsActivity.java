@@ -1,8 +1,6 @@
 package com.example.kheireddine.popularmoviesstage2.ui;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -19,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.data.DbUtils;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.ReviewsResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
@@ -37,7 +36,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.*;
+import static com.example.kheireddine.popularmoviesstage2.data.DbUtils.BTN_CHECKED;
+import static com.example.kheireddine.popularmoviesstage2.data.DbUtils.BTN_UNCHECKED;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
 
 
@@ -62,8 +62,7 @@ public class MovieDetailsActivity extends MainActivity implements
     private int movieFromType;
     private StringBuilder mParamsForApi;
     private static boolean isFavBtnChecked;
-    private final static boolean BTN_CHECKED = true;
-    private final static boolean BTN_UNCHECKED = false;
+
 
 
     @Override
@@ -91,7 +90,7 @@ public class MovieDetailsActivity extends MainActivity implements
         }
 
         // getting value of button favourite (checked or unchecked)
-        isFavBtnChecked = getStateChecking();
+        isFavBtnChecked = DbUtils.getStateChecking(mContext, mMovie);
 
     }
 
@@ -207,54 +206,14 @@ public class MovieDetailsActivity extends MainActivity implements
 
     /** Adding movie to favourite movies */
     private void addToFavourite () {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_ID, mMovie.getId());
-        contentValues.put(COLUMN_TITLE, mMovie.getTitle());
-        contentValues.put(COLUMN_RATING, mMovie.getRating());
-        contentValues.put(COLUMN_POSTER, mMovie.getPoster());
-        contentValues.put(COLUMN_BACKDROP, mMovie.getBackdrop());
-        contentValues.put(COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
-        contentValues.put(COLUMN_RUNTIME, mMovie.getRuntime());
-        contentValues.put(COLUMN_SYNOPSIS, mMovie.getSynopsis());
-
-        Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
-
-        if (uri != null) {
-            Log.d(Utils.TAG, "addToFavourite: " + uri);
-        }
-
-        setStateChecking(true);
-
-        // TODO : add favourite movie in shared preferences as boolean true matched with its id, that allows me to retrieve the value
-        // of the button if it is checked or not
+        DbUtils.insertMovie(mContext, mMovie);
     }
 
     private void removeFromFavourite (){
-        // TODO
-        setStateChecking(false);
-
+        // TODO create deleteMovie on DbUtils
+        DbUtils.setStateChecking(mContext, mMovie, false);
     }
 
-    /**
-     * TODO : do it on a detached thread
-     * Store value of favourite button as a shared preferences
-     * */
-    private void setStateChecking(boolean isChecked){
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(mMovie.getTitle(), isChecked);
-        editor.commit();
-    }
-
-    /**
-     * TODO : do it on a detached thread
-     * getting value of favourite button
-     * */
-    private boolean getStateChecking(){
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        boolean isChecked = sharedPreferences.getBoolean(mMovie.getTitle(), false);
-        return isChecked;
-    }
 
     /**************************************************************************************************
      *                                            HTTP calls

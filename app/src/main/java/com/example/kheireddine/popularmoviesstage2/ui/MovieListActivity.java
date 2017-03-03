@@ -3,6 +3,7 @@ package com.example.kheireddine.popularmoviesstage2.ui;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -47,16 +48,17 @@ public class MovieListActivity extends MainActivity
     private static final int TITLE_MOVIE_DEFAULT = R.string.toolbar_pop_movies;
 
     // Refers to a unique loader
-    private static final int MOVIE_LOADER_ID = 0;
+    private static final int MOVIE_LOADER_ID = 1;
     private static boolean isFavSorting;
 
+    private int itemMenuSelected = -1;
+    MenuItem menuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         setToolBar(getString(TITLE_MOVIE_DEFAULT));
         setLayoutManager();
 
@@ -86,6 +88,24 @@ public class MovieListActivity extends MainActivity
         // re-queries for all movies from db
         if (isFavSorting)
             getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //outState.putParcelableArrayList(STATE_MOVIE_LIST, (ArrayList<? extends Parcelable>) mMoviesList);
+        //outState.putSerializable(STATE_MOVIE_LIST, (Serializable) mMoviesList);
+        outState.putInt(STATE_MENU_SELECTED,itemMenuSelected);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+         //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST);
+        //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
+        itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
+
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     public void setLayoutManager() {
@@ -126,7 +146,7 @@ public class MovieListActivity extends MainActivity
                 return;
         }
 
-        movieDetailsIntent.putExtra(Constants.EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovieClicked));
+        movieDetailsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovieClicked));
         movieDetailsIntent.putExtra(EXTRA_MOVIE_FROM_TYPE, movieFromType);
         startActivity(movieDetailsIntent);
     }
@@ -139,18 +159,40 @@ public class MovieListActivity extends MainActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+
+        if (itemMenuSelected == -1){
+            return true;
+        }
+
+        switch (itemMenuSelected){
+            case R.id.item_sort_by_popularity:
+                menuItem = menu.findItem(R.id.item_sort_by_popularity);
+                menuItem.setChecked(true);
+                break;
+            case R.id.item_sort_by_top_rated:
+                menuItem = menu.findItem(R.id.item_sort_by_top_rated);
+                menuItem.setChecked(true);
+                break;
+
+            case R.id.item_sort_by_favourite:
+                menuItem = menu.findItem(R.id.item_sort_by_favourite);
+                menuItem.setChecked(true);
+                break;
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        int id = item.getItemId();
+        switch (id) {
             case R.id.item_sort_by_popularity:
                 SORT_BY = Constants.SORT_BY_POPOLARITY;
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_pop_movies));
                 httpGetMovies(SORT_BY);
                 isFavSorting = false;
+                itemMenuSelected = id;
                 return true;
 
             case R.id.item_sort_by_top_rated:
@@ -159,6 +201,7 @@ public class MovieListActivity extends MainActivity
                 setToolBar(getString(R.string.toolbar_top_movies));
                 httpGetMovies(SORT_BY);
                 isFavSorting = false;
+                itemMenuSelected = id;
                 return true;
 
             case R.id.item_sort_by_favourite:
@@ -166,6 +209,7 @@ public class MovieListActivity extends MainActivity
                 setToolBar(getString(R.string.toolbar_favourite_movies));
                 dbGetFavouriteMovies();
                 isFavSorting = true;
+                itemMenuSelected = id;
                 return true;
 
             default:

@@ -40,4 +40,12 @@ public abstract class Constants {
     public static final String EXCEPTION_SQL_INSERT = "Failed to insert row into ";
     public static final String EXCEPTION_RESOLVER_QUERY = "Failed to asynchronously load data. ";
 
+    /**
+     * Constants for the save instance state
+     * */
+    public static final String STATE_POSITION ="state_position";
+    public static final String STATE_MOVIE_LIST ="state_movie_list";
+    public static final String STATE_MENU_SELECTED = "selected_menu_item";
+
+
 }

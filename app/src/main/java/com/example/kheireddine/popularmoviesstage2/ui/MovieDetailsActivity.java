@@ -210,8 +210,7 @@ public class MovieDetailsActivity extends MainActivity implements
     }
 
     private void removeFromFavourite (){
-        // TODO create deleteMovie on DbUtils
-        DbUtils.setStateChecking(mContext, mMovie, false);
+        DbUtils.deleteMovie(mContext, mMovie);
     }
 
 

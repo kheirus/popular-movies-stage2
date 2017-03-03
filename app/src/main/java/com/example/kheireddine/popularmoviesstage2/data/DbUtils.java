@@ -2,9 +2,12 @@ package com.example.kheireddine.popularmoviesstage2.data;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.util.Log;;
 
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
+import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.*;
@@ -62,8 +65,20 @@ public class DbUtils {
         contentValues.put(COLUMN_SYNOPSIS, movie.getSynopsis());
 
         context.getContentResolver().insert(CONTENT_URI, contentValues);
-
+        // add the movie as a favourite in our SharedPreferences file
         setStateChecking(context, movie, BTN_CHECKED);
+    }
+
+
+
+    public static void deleteMovie(Context context, Movie movie){
+        String stringId = String.valueOf(movie.getId());
+        Uri uri = CONTENT_URI.buildUpon().appendPath(stringId).build();
+        Log.d(Utils.TAG, "deleteMovieURI: "+uri);
+        context.getContentResolver().delete(uri, null, null);
+
+        // delete the movie from SharedPreferences file
+        setStateChecking(context, movie, false);
     }
 
 }

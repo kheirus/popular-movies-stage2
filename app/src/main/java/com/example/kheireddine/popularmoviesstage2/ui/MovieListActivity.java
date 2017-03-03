@@ -48,7 +48,7 @@ public class MovieListActivity extends MainActivity
 
     // Refers to a unique loader
     private static final int MOVIE_LOADER_ID = 0;
-
+    private static boolean isFavSorting;
 
 
     @Override
@@ -78,6 +78,15 @@ public class MovieListActivity extends MainActivity
 
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // re-queries for all movies from db
+        if (isFavSorting)
+            getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+    }
 
     public void setLayoutManager() {
         //StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -141,6 +150,7 @@ public class MovieListActivity extends MainActivity
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_pop_movies));
                 httpGetMovies(SORT_BY);
+                isFavSorting = false;
                 return true;
 
             case R.id.item_sort_by_top_rated:
@@ -148,12 +158,14 @@ public class MovieListActivity extends MainActivity
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_top_movies));
                 httpGetMovies(SORT_BY);
+                isFavSorting = false;
                 return true;
 
             case R.id.item_sort_by_favourite:
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_favourite_movies));
                 dbGetFavouriteMovies();
+                isFavSorting = true;
                 return true;
 
             default:

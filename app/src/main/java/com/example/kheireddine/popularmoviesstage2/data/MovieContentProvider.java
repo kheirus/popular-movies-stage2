@@ -9,8 +9,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 // static imports
+import com.example.kheireddine.popularmoviesstage2.utils.Utils;
+
 import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.*;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
 
@@ -109,7 +112,28 @@ public class MovieContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        // Get access to the database
+        final SQLiteDatabase db = mMovieDbHelper.getWritableDatabase();
+
+        int match = sUriMatcher.match(uri);
+
+        int returnDeletedMovies;
+
+        switch (match) {
+            case FAVOURITE_MOVIE_WITH_ID:
+                String stringId = uri.getPathSegments().get(1);
+                // Note that the id here is the id of the movie, not the _id of a raw
+                returnDeletedMovies = db.delete(TABLE_NAME, "id=?", new String[]{stringId});
+                break;
+            default:
+                throw new UnsupportedOperationException(EXCEPTION_UKNOWN_URI + uri);
+        }
+
+        if (returnDeletedMovies !=0){
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        Log.d(Utils.TAG, "delete nb : "+returnDeletedMovies);
+        return returnDeletedMovies;
     }
 
     @Override

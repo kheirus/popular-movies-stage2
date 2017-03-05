@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.MovieListActivity">
+        <activity android:name=".ui.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,14 +20,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.MovieDetailsActivity" />
+        <activity android:name=".ui.activities.MovieDetailsActivity" />
 
         <activity
-            android:name=".ui.MainActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.ReviewsActivity"
+            android:name=".ui.activities.ReviewsActivity"
             android:theme="@style/Theme.Transparent"/>
 
         <provider

@@ -1,4 +1,4 @@
-package com.example.kheireddine.popularmoviesstage2.ui;
+package com.example.kheireddine.popularmoviesstage2.ui.activities;
 
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;

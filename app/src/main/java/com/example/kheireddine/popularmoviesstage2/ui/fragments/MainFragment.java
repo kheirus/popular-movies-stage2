@@ -1,24 +1,35 @@
-package com.example.kheireddine.popularmoviesstage2.ui;
+package com.example.kheireddine.popularmoviesstage2.ui.fragments;
 
+
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.api.ITheMovieDbRestAPI;
+import com.example.kheireddine.popularmoviesstage2.api.TheMovieDbServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.data.MovieContract;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.MoviesResults;
-import com.example.kheireddine.popularmoviesstage2.ui.adapters.MovieListAdapter;
+import com.example.kheireddine.popularmoviesstage2.ui.activities.MovieDetailsActivity;
+import com.example.kheireddine.popularmoviesstage2.ui.adapters.MovieGridAdapter;
 import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 
@@ -33,32 +44,87 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.*;
-import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_BACKDROP;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_ID;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_POSTER;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_RATING;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_RELEASE_DATE;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_RUNTIME;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_SYNOPSIS;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_TITLE;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_MOVIE_FROM_TYPE;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_PARCELABLE_MOVIE;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_CURSOR;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_LIST;
 
-public class MovieListActivity extends MainActivity
-        implements MovieListAdapter.IMovieListListener, LoaderManager.LoaderCallbacks<Cursor> {
-
-    private static final String TAG = MainActivity.class.getSimpleName();
-
-    @BindView(R.id.rv_movies_list) RecyclerView rvMovieList;
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+    @BindView(R.id.rv_movies_list)
+    RecyclerView rvMovieList;
     private List<Movie> mMoviesList;
-    private MovieListAdapter mAdapter;
+    private MovieGridAdapter mAdapter;
     private String SORT_BY = Constants.SORT_BY_DEFAULT;
+    private Context mContext;
+    public ITheMovieDbRestAPI mdbAPI;
+
+
     private static final int TITLE_MOVIE_DEFAULT = R.string.toolbar_pop_movies;
+
+    private int itemMenuSelected = -1;
+    private MenuItem menuItem;
+    private boolean mTwoPane;
+
 
     // Refers to a unique loader
     private static final int MOVIE_LOADER_ID = 1;
     private static boolean isFavSorting;
 
-    private int itemMenuSelected = -1;
-    MenuItem menuItem;
+
+    public static MainFragment create(){
+        MainFragment fragment = new MainFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public MainFragment() {
+        // Required empty public constructor
+    }
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view  = inflater.inflate(R.layout.fragment_main, container, false);
+        if (getActivity().findViewById(R.id.fl_details) != null) {
+            mTwoPane = true;
+        }
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // re-queries for all movies from db
+        if (isFavSorting)
+            getActivity().getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+    }
+
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
+        setHasOptionsMenu(true);
+
+        mContext = getContext();
+        ButterKnife.bind(this, view);
         setToolBar(getString(TITLE_MOVIE_DEFAULT));
         setLayoutManager();
 
@@ -70,48 +136,44 @@ public class MovieListActivity extends MainActivity
 
             // invalid API_KEY
             else{
-                Utils.showDialog(MovieListActivity.this, getString(R.string.dialog_error_api_key_title), getString(R.string.dialog_error_api_key_message));
+                Utils.showDialog(getActivity(), getString(R.string.dialog_error_api_key_title), getString(R.string.dialog_error_api_key_message));
             }
 
         }
         // No network
         else
-            Utils.showDialog(MovieListActivity.this, getString(R.string.dialog_error_network_title), getString(R.string.dialog_error_network_message));
-
+            Utils.showDialog(getActivity(), getString(R.string.dialog_error_network_title), getString(R.string.dialog_error_network_message));
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
 
-        // re-queries for all movies from db
-        if (isFavSorting)
-            getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
-    }
-
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        //outState.putParcelableArrayList(STATE_MOVIE_LIST, (ArrayList<? extends Parcelable>) mMoviesList);
-        //outState.putSerializable(STATE_MOVIE_LIST, (Serializable) mMoviesList);
-        outState.putInt(STATE_MENU_SELECTED,itemMenuSelected);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-         //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST);
-        //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
-        itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
-
-        super.onRestoreInstanceState(savedInstanceState);
-    }
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        //outState.putParcelableArrayList(STATE_MOVIE_LIST, (ArrayList<? extends Parcelable>) mMoviesList);
+//        //outState.putSerializable(STATE_MOVIE_LIST, (Serializable) mMoviesList);
+//        outState.putInt(STATE_MENU_SELECTED,itemMenuSelected);
+//        super.onSaveInstanceState(outState);
+//    }
+//
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST);
+//        //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
+//        itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
+//
+//        super.onRestoreInstanceState(savedInstanceState);
+//    }
 
     public void setLayoutManager() {
         //StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 
-        int nbCell = Utils.calculateNoOfColumns(mContext);
+        int nbCell;
+
+        if (mTwoPane)
+            nbCell = 2;
+        else
+            nbCell= Utils.calculateNoOfColumns(mContext);
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, nbCell);
         rvMovieList.setLayoutManager(gridLayoutManager);
         rvMovieList.setHasFixedSize(true);
@@ -119,36 +181,8 @@ public class MovieListActivity extends MainActivity
 
     // Adapter with a list of movie as a data
     private void setRecyclerAdapter(RecyclerView recyclerView, List<Movie> movieList) {
-        mAdapter = new MovieListAdapter(mContext, movieList, this);
+        mAdapter = new MovieGridAdapter(mContext, movieList, mTwoPane);
         recyclerView.setAdapter(mAdapter);
-    }
-
-
-    /**
-     * Click on a movie
-     */
-    @Override
-    public void onMovieListClick(int clickMovieIndex, int type) {
-        //TODO BUG BUG BUG when favourite movie is selected the position is false
-        Movie mMovieClicked = mMoviesList.get(clickMovieIndex);
-        Intent movieDetailsIntent = new Intent(MovieListActivity.this, MovieDetailsActivity.class);
-        int movieFromType;
-
-        switch (type){
-            case MOVIE_FROM_LIST:
-                movieFromType = MOVIE_FROM_LIST;
-                break;
-            case MOVIE_FROM_CURSOR:
-                movieFromType = MOVIE_FROM_CURSOR;
-                break;
-
-            default:
-                return;
-        }
-
-        movieDetailsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovieClicked));
-        movieDetailsIntent.putExtra(EXTRA_MOVIE_FROM_TYPE, movieFromType);
-        startActivity(movieDetailsIntent);
     }
 
 
@@ -156,12 +190,13 @@ public class MovieListActivity extends MainActivity
      * Menu
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main, menu);
 
         if (itemMenuSelected == -1){
-            return true;
+            return;
         }
 
         switch (itemMenuSelected){
@@ -179,7 +214,7 @@ public class MovieListActivity extends MainActivity
                 menuItem.setChecked(true);
                 break;
         }
-        return true;
+        return;
     }
 
     @Override
@@ -219,6 +254,21 @@ public class MovieListActivity extends MainActivity
 
     }
 
+    public void setToolBar(String title) {
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(title);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
+    }
+
+    public void addDetailFragmentForTwoPane(Bundle bundle) {
+        MovieDetailsFragment detailFragment = MovieDetailsFragment.create(bundle);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.fl_details, detailFragment)
+                .commit();
+    }
+
+
     /**************************************************************************************************
      *                                            HTTP calls
      ************************************************************************************************/
@@ -230,6 +280,11 @@ public class MovieListActivity extends MainActivity
                 if (response.isSuccessful()) {
                     mMoviesList = response.body().getmMoviesResults();
                     if (mMoviesList.size() != 0) {
+                        if (mTwoPane){
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelable(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMoviesList.get(0)));
+                            addDetailFragmentForTwoPane(bundle);
+                        }
                         setRecyclerAdapter(rvMovieList,mMoviesList);
                     } else {
                         //TODO empty list error
@@ -252,14 +307,14 @@ public class MovieListActivity extends MainActivity
      *                                            DATABASE calls
      ************************************************************************************************/
     private void dbGetFavouriteMovies() {
-        getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, MovieListActivity.this);
+        getActivity().getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
     }
 
 
     // Loader that fetch movies from database due to ContentProvider
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new AsyncTaskLoader<Cursor>(this) {
+        return new AsyncTaskLoader<Cursor>(mContext) {
 
             Cursor mMovieData = null;
 
@@ -275,7 +330,7 @@ public class MovieListActivity extends MainActivity
             @Override
             public Cursor loadInBackground() {
                 try{
-                    Cursor cursor = getContentResolver().query(MovieContract.FavouriteMovieEntry.CONTENT_URI,
+                    Cursor cursor = getActivity().getContentResolver().query(MovieContract.FavouriteMovieEntry.CONTENT_URI,
                             null,
                             null,
                             null,
@@ -334,6 +389,4 @@ public class MovieListActivity extends MainActivity
         }
         return listMovies;
     }
-
 }
-

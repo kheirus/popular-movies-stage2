@@ -1,27 +1,37 @@
-package com.example.kheireddine.popularmoviesstage2.ui;
+package com.example.kheireddine.popularmoviesstage2.ui.fragments;
 
+
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kheireddine.popularmoviesstage2.R;
+import com.example.kheireddine.popularmoviesstage2.api.ITheMovieDbRestAPI;
+import com.example.kheireddine.popularmoviesstage2.api.TheMovieDbServiceAPI;
 import com.example.kheireddine.popularmoviesstage2.data.DbUtils;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.ReviewsResults;
 import com.example.kheireddine.popularmoviesstage2.model.Trailer;
 import com.example.kheireddine.popularmoviesstage2.model.TrailersResults;
+import com.example.kheireddine.popularmoviesstage2.ui.activities.ReviewsActivity;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.ReviewListAdapter;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.TrailerListAdapter;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
@@ -35,22 +45,33 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
 import static com.example.kheireddine.popularmoviesstage2.data.DbUtils.BTN_CHECKED;
 import static com.example.kheireddine.popularmoviesstage2.data.DbUtils.BTN_UNCHECKED;
-import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.API_BACKDROP_HEADER;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.API_POSTER_HEADER_LARGE;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_MOVIE_FROM_TYPE;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_PARCELABLE_MOVIE;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_CURSOR;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_LIST;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.TOAST_WATCHING_TRAILER_;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.YOUTUBE_URL;
 
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class MovieDetailsFragment extends Fragment implements
+        TrailerListAdapter.ITrailerListListener, ReviewListAdapter.IReviewListListener {
 
-public class MovieDetailsActivity extends MainActivity implements
-        TrailerListAdapter.ITrailerListListener, ReviewListAdapter.IReviewListListener{
-
-    @BindView(R.id.iv_backdrop) ImageView ivBackdrop;
+    @BindView(R.id.iv_backdrop)
+    ImageView ivBackdrop;
     @BindView(R.id.iv_poster_detail) ImageView ivPosetr;
-    @BindView(R.id.tv_title_detail) TextView tvTitle;
+    @BindView(R.id.tv_title_detail)
+    TextView tvTitle;
     @BindView(R.id.tv_synopsis) TextView tvSynopsis;
     @BindView(R.id.tv_rating) TextView tvRating;
     @BindView(R.id.tv_runtime) TextView tvRuntime;
-    @BindView(R.id.rv_trailer_list) RecyclerView rvTrailerList;
+    @BindView(R.id.rv_trailer_list)
+    RecyclerView rvTrailerList;
     @BindView(R.id.rv_reviews_list) RecyclerView rvReviewList;
     @BindView(R.id.iv_hiden_heart) ImageView ivHidenHeart;
     @BindView(R.id.tv_reviews_count) TextView tvReviewCount;
@@ -62,26 +83,53 @@ public class MovieDetailsActivity extends MainActivity implements
     private int movieFromType;
     private StringBuilder mParamsForApi;
     private static boolean isFavBtnChecked;
+    private Context mContext;
+    private ITheMovieDbRestAPI mdbAPI;
 
+
+    public static MovieDetailsFragment create(Bundle args){
+        MovieDetailsFragment fragment = new MovieDetailsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public MovieDetailsFragment() {
+        // Required empty public constructor
+    }
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_detail);
-        ButterKnife.bind(this);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_movie_details, container, false);
+    }
 
-        mMovie = Parcels.unwrap(getIntent().getExtras().getParcelable(EXTRA_PARCELABLE_MOVIE));
-        movieFromType = getIntent().getExtras().getInt(EXTRA_MOVIE_FROM_TYPE);
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        ButterKnife.bind(this, view);
+        mContext = getActivity();
+        mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
+        setHasOptionsMenu(true);
+
+        if (getArguments() !=null ){
+          Bundle arg = getArguments();
+            mMovie = Parcels.unwrap(arg.getParcelable(EXTRA_PARCELABLE_MOVIE));
+            movieFromType = arg.getInt(EXTRA_MOVIE_FROM_TYPE);
+        }
+
+
+
         setViewMovie();
-
         setToolBar(mMovie.getTitle(),true,true);
         setTrailerLayoutManager();
         setReviewLayoutManager();
 
         // fetch other details of the movie (trailers, images, reviews...)
         if (movieFromType==MOVIE_FROM_LIST ||
-                (movieFromType==MOVIE_FROM_CURSOR && Utils.isOnline(this))){
+                (movieFromType==MOVIE_FROM_CURSOR && Utils.isOnline(getActivity()))){
             /*  We do the http request only when the movie was selected from list of movies (that comes from internet)
              *  OR
              *  When the movie was selected from movies comes from database BUT the internet is available to requesting ThMDB API
@@ -91,13 +139,8 @@ public class MovieDetailsActivity extends MainActivity implements
 
         // getting value of button favourite (checked or unchecked)
         isFavBtnChecked = DbUtils.getStateChecking(mContext, mMovie);
-
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
 
     private void setViewMovie(){
         // set the title and the year
@@ -147,7 +190,7 @@ public class MovieDetailsActivity extends MainActivity implements
     @Override
     public void onTrailerListClick(int clickTrailerIndex) {
         Trailer mTrailerClicked = mMovie.getTrailersResults().getTrailers().get(clickTrailerIndex);
-        Utils.showLongToastMessage(this, TOAST_WATCHING_TRAILER_ + mTrailerClicked.getName());
+        Utils.showLongToastMessage(getActivity(), TOAST_WATCHING_TRAILER_ + mTrailerClicked.getName());
         Intent playYoutubeIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_URL+mTrailerClicked.getKey()));
         startActivity(playYoutubeIntent);
     }
@@ -155,18 +198,18 @@ public class MovieDetailsActivity extends MainActivity implements
     // Click on a review
     @Override
     public void onReviewListClick(int clickReviewIndex) {
-        Intent reviewsIntent = new Intent(this, ReviewsActivity.class);
+        Intent reviewsIntent = new Intent(getActivity(), ReviewsActivity.class);
         reviewsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovie));
         startActivity(reviewsIntent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out );
+        getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out );
     }
 
     /**
      * Create a Menu
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.details_movie_menu, menu);
         MenuItem item = menu.getItem(0);
         if (isFavBtnChecked){
@@ -177,8 +220,6 @@ public class MovieDetailsActivity extends MainActivity implements
             item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_empty));
             item.setChecked(BTN_UNCHECKED);
         }
-
-        return true;
     }
 
     @Override
@@ -200,9 +241,21 @@ public class MovieDetailsActivity extends MainActivity implements
                     addToFavourite();
                     break;
                 }
+
+            case android.R.id.home :
+                getActivity().finish();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    // Toolbar with title and home button
+    protected void setToolBar(String title, boolean homeUp, boolean showHomeUp) {
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(title);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(homeUp);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(showHomeUp);
+    }
+
 
     /** Adding movie to favourite movies */
     private void addToFavourite () {
@@ -255,6 +308,5 @@ public class MovieDetailsActivity extends MainActivity implements
             }
         });
     }
-
 
 }

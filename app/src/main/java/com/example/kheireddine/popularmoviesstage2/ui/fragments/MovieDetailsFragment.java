@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -76,6 +77,7 @@ public class MovieDetailsFragment extends Fragment implements
     @BindView(R.id.iv_hiden_heart) ImageView ivHidenHeart;
     @BindView(R.id.tv_reviews_count) TextView tvReviewCount;
     @BindView(R.id.tv_reviews_fix) TextView tvReviewFix;
+    @BindView(R.id.fab_favourite) FloatingActionButton fabFavourite;
 
     private Movie mMovie;
     private TrailerListAdapter mTrailerAdapter;
@@ -115,12 +117,13 @@ public class MovieDetailsFragment extends Fragment implements
         setHasOptionsMenu(true);
 
         if (getArguments() !=null ){
-          Bundle arg = getArguments();
+            Bundle arg = getArguments();
             mMovie = Parcels.unwrap(arg.getParcelable(EXTRA_PARCELABLE_MOVIE));
             movieFromType = arg.getInt(EXTRA_MOVIE_FROM_TYPE);
         }
 
-
+        // getting value of button favourite (checked or unchecked)
+        isFavBtnChecked = DbUtils.getStateChecking(mContext, mMovie);
 
         setViewMovie();
         setToolBar(mMovie.getTitle(),true,true);
@@ -137,8 +140,7 @@ public class MovieDetailsFragment extends Fragment implements
             httpGetMovieDetails(mMovie.getId());
         }
 
-        // getting value of button favourite (checked or unchecked)
-        isFavBtnChecked = DbUtils.getStateChecking(mContext, mMovie);
+
     }
 
 
@@ -161,6 +163,33 @@ public class MovieDetailsFragment extends Fragment implements
                 .placeholder(R.drawable.poster_placeholder)
                 .error(R.drawable.poster_error)
                 .into(ivBackdrop);
+
+        Log.d(Utils.TAG, "isFavbtnchecked " + isFavBtnChecked);
+        if (isFavBtnChecked){
+            fabFavourite.setImageResource(R.drawable.ic_favorite_fill);
+        } else {
+            fabFavourite.setImageResource(R.drawable.ic_favorite_empty);
+        }
+
+        fabFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFavBtnChecked){
+                    //CHECKED
+                    fabFavourite.setImageResource(R.drawable.ic_favorite_empty);
+                    isFavBtnChecked = false;
+                    removeFromFavourite();
+                } else {
+                    //UNCHECKED
+                    fabFavourite.setImageResource(R.drawable.ic_favorite_fill);
+                    final Animation animScale = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale);
+                    ivHidenHeart.startAnimation(animScale);
+                    isFavBtnChecked = true;
+                    addToFavourite();
+                }
+
+            }
+        });
     }
 
     private void setTrailerLayoutManager() {
@@ -204,44 +233,9 @@ public class MovieDetailsFragment extends Fragment implements
         getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out );
     }
 
-    /**
-     * Create a Menu
-     */
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.details_movie_menu, menu);
-        MenuItem item = menu.getItem(0);
-        if (isFavBtnChecked){
-            item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_fill));
-            item.setChecked(BTN_CHECKED);
-
-        } else {
-            item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_empty));
-            item.setChecked(BTN_UNCHECKED);
-        }
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.action_favourite:
-                if(item.isChecked()){
-                    //CHECKED
-                    item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_empty));
-                    item.setChecked(BTN_UNCHECKED);
-                    removeFromFavourite();
-                    break;
-                } else {
-                    //UNCHECKED
-                    item.setIcon(ContextCompat.getDrawable(mContext,R.drawable.ic_favorite_fill));
-                    final Animation animScale = AnimationUtils.loadAnimation(mContext, R.anim.anim_scale);
-                    ivHidenHeart.startAnimation(animScale);
-                    item.setChecked(BTN_CHECKED);
-                    addToFavourite();
-                    break;
-                }
-
             case android.R.id.home :
                 getActivity().finish();
                 return true;

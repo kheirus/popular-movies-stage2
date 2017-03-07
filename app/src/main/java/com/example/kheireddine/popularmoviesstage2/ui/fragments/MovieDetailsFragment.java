@@ -54,6 +54,7 @@ import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_PARCELABLE_MOVIE;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_CURSOR;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_LIST;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.STATE_MOVIE_DETAILS;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.TOAST_WATCHING_TRAILER_;
 import static com.example.kheireddine.popularmoviesstage2.utils.Constants.YOUTUBE_URL;
 
@@ -63,16 +64,13 @@ import static com.example.kheireddine.popularmoviesstage2.utils.Constants.YOUTUB
 public class MovieDetailsFragment extends Fragment implements
         TrailerListAdapter.ITrailerListListener, ReviewListAdapter.IReviewListListener {
 
-    @BindView(R.id.iv_backdrop)
-    ImageView ivBackdrop;
+    @BindView(R.id.iv_backdrop) ImageView ivBackdrop;
     @BindView(R.id.iv_poster_detail) ImageView ivPosetr;
-    @BindView(R.id.tv_title_detail)
-    TextView tvTitle;
+    @BindView(R.id.tv_title_detail) TextView tvTitle;
     @BindView(R.id.tv_synopsis) TextView tvSynopsis;
     @BindView(R.id.tv_rating) TextView tvRating;
     @BindView(R.id.tv_runtime) TextView tvRuntime;
-    @BindView(R.id.rv_trailer_list)
-    RecyclerView rvTrailerList;
+    @BindView(R.id.rv_trailer_list) RecyclerView rvTrailerList;
     @BindView(R.id.rv_reviews_list) RecyclerView rvReviewList;
     @BindView(R.id.iv_hiden_heart) ImageView ivHidenHeart;
     @BindView(R.id.tv_reviews_count) TextView tvReviewCount;
@@ -104,45 +102,66 @@ public class MovieDetailsFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_movie_details, container, false);
+        View view =  inflater.inflate(R.layout.fragment_movie_details, container, false);
+        ButterKnife.bind(this, view);
+
+        setHasOptionsMenu(true);
+        setViewMovie();
+        setToolBar(mMovie.getTitle(),true,true);
+        setTrailerLayoutManager();
+        setReviewLayoutManager();
+
+        Log.d(Utils.TAG, "onCreateView: savedInstanceState "+savedInstanceState);
+
+        return view;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        ButterKnife.bind(this, view);
-        mContext = getActivity();
-        mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
-        setHasOptionsMenu(true);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         if (getArguments() !=null ){
             Bundle arg = getArguments();
             mMovie = Parcels.unwrap(arg.getParcelable(EXTRA_PARCELABLE_MOVIE));
             movieFromType = arg.getInt(EXTRA_MOVIE_FROM_TYPE);
         }
+        mContext = getActivity();
+        mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
+
 
         // getting value of button favourite (checked or unchecked)
         isFavBtnChecked = DbUtils.getStateChecking(mContext, mMovie);
 
-        setViewMovie();
-        setToolBar(mMovie.getTitle(),true,true);
-        setTrailerLayoutManager();
-        setReviewLayoutManager();
 
-        // fetch other details of the movie (trailers, images, reviews...)
-        if (movieFromType==MOVIE_FROM_LIST ||
-                (movieFromType==MOVIE_FROM_CURSOR && Utils.isOnline(getActivity()))){
+        // retrieve saved instance state
+        if (savedInstanceState !=null){
+            Log.d(Utils.TAG, "savedInstanceState = "+savedInstanceState.containsKey(STATE_MOVIE_DETAILS));
+            mMovie = Parcels.unwrap(savedInstanceState.getParcelable(STATE_MOVIE_DETAILS));
+        } else {
+            Log.d(Utils.TAG, "saved null = ");
+            // fetch other details of the movie (trailers, images, reviews...)
+            if (movieFromType == MOVIE_FROM_LIST ||
+                    (movieFromType == MOVIE_FROM_CURSOR && Utils.isOnline(getActivity()))) {
             /*  We do the http request only when the movie was selected from list of movies (that comes from internet)
              *  OR
              *  When the movie was selected from movies comes from database BUT the internet is available to requesting ThMDB API
              * */
-            httpGetMovieDetails(mMovie.getId());
+                Log.d(Utils.TAG, "httpGetMovieDetails ****");
+                httpGetMovieDetails(mMovie.getId());
+            }
         }
+
 
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(Utils.TAG, "onSaveInstanceState: "+mMovie.toString());
+        outState.putParcelable(STATE_MOVIE_DETAILS, Parcels.wrap(mMovie));
+
+    }
 
     private void setViewMovie(){
         // set the title and the year
@@ -190,6 +209,17 @@ public class MovieDetailsFragment extends Fragment implements
 
             }
         });
+
+        // retrieve more infos from savedInstanceState
+        if (mMovie.getReviewsResults() != null
+                && mMovie.getTrailersResults() != null
+                && mMovie.getRuntime() !=null) {
+
+            setTrailerRecyclerAdapter(rvTrailerList);
+            tvReviewCount.setText(String.valueOf("("+mMovie.getReviewsResults().getTotalReviews())+")");
+            setReviewRecyclerAdapter(rvReviewList);
+            tvRuntime.setText(Utils.timeToDisplay(mMovie.getRuntime()));
+        }
     }
 
     private void setTrailerLayoutManager() {

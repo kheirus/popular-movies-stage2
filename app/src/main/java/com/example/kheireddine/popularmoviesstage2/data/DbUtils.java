@@ -54,6 +54,7 @@ public class DbUtils {
      * @param movie Movie we want to add to favourite
      * */
     public static void insertMovie(Context context, Movie movie){
+        String stringRuntime;
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_ID, movie.getId());
         contentValues.put(COLUMN_TITLE, movie.getTitle());
@@ -61,8 +62,15 @@ public class DbUtils {
         contentValues.put(COLUMN_POSTER, movie.getPoster());
         contentValues.put(COLUMN_BACKDROP, movie.getBackdrop());
         contentValues.put(COLUMN_RELEASE_DATE, movie.getReleaseDate());
-        contentValues.put(COLUMN_RUNTIME, movie.getRuntime());
         contentValues.put(COLUMN_SYNOPSIS, movie.getSynopsis());
+        // Whether the network is off, we haven't the runtime value so it's null
+        if (movie.getRuntime() == null){
+            stringRuntime = " ";
+        }
+        else {
+            stringRuntime = movie.getRuntime();
+        }
+        contentValues.put(COLUMN_RUNTIME, stringRuntime);
 
         context.getContentResolver().insert(CONTENT_URI, contentValues);
         // add the movie as a favourite in our SharedPreferences file

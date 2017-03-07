@@ -53,15 +53,16 @@ public class MovieDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
-        addDetailsFragment();
+
+        if (savedInstanceState != null) {
+            return;
+        } else {
+            // Add the Detail Fragment to the fl_detail FrameLayout
+            addDetailsFragment();
+        }
+
 
     }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
-
 
     public void addDetailsFragment() {
         if (!isFinishing()) {

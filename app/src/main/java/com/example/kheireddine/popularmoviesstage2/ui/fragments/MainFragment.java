@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -44,18 +45,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_BACKDROP;
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_ID;
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_POSTER;
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_RATING;
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_RELEASE_DATE;
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_RUNTIME;
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_SYNOPSIS;
-import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.COLUMN_TITLE;
-import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_MOVIE_FROM_TYPE;
-import static com.example.kheireddine.popularmoviesstage2.utils.Constants.EXTRA_PARCELABLE_MOVIE;
-import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_CURSOR;
-import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_FROM_LIST;
+import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.FavouriteMovieEntry.*;
+import static com.example.kheireddine.popularmoviesstage2.utils.Constants.*;
+import static com.example.kheireddine.popularmoviesstage2.utils.Utils.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,7 +55,7 @@ import static com.example.kheireddine.popularmoviesstage2.utils.Constants.MOVIE_
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
     @BindView(R.id.rv_movies_list)
     RecyclerView rvMovieList;
-    private List<Movie> mMoviesList;
+    private ArrayList<Movie> mMoviesList;
     private MovieGridAdapter mAdapter;
     private String SORT_BY = Constants.SORT_BY_DEFAULT;
     private Context mContext;
@@ -80,6 +72,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     // Refers to a unique loader
     private static final int MOVIE_LOADER_ID = 1;
     private static boolean isFavSorting;
+    private boolean hasSavedInstance;
 
 
     public static MainFragment create(){
@@ -103,6 +96,11 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             mTwoPane = true;
         }
 
+        ButterKnife.bind(this, view);
+        setHasOptionsMenu(true);
+        setToolBar(getString(TITLE_MOVIE_DEFAULT));
+        setLayoutManager();
+
         return view;
     }
 
@@ -117,19 +115,26 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // retrieve saved instance
+        if (savedInstanceState !=null){
+            hasSavedInstance = true;
+            //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST));
+            //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
+            //mMoviesList = (ArrayList<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_DETAILS);
+            Log.d(TAG, "serialisable moviesList = "+mMoviesList.size());
+            itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
+
+        }
 
         mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
-        setHasOptionsMenu(true);
 
         mContext = getContext();
-        ButterKnife.bind(this, view);
-        setToolBar(getString(TITLE_MOVIE_DEFAULT));
-        setLayoutManager();
+
 
         /** Check network and api_key */
-        if (Utils.isOnline(mContext)) {
+        if (Utils.isOnline(mContext) /*&& !hasSavedInstance*/) {
             if (Utils.isValidApiKey()){
                 httpGetMovies(SORT_BY);
             }
@@ -141,28 +146,22 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         }
         // No network
-        else
+        else if (!Utils.isOnline(mContext))
             Utils.showDialog(getActivity(), getString(R.string.dialog_error_network_title), getString(R.string.dialog_error_network_message));
     }
 
 
 
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        //outState.putParcelableArrayList(STATE_MOVIE_LIST, (ArrayList<? extends Parcelable>) mMoviesList);
-//        //outState.putSerializable(STATE_MOVIE_LIST, (Serializable) mMoviesList);
-//        outState.putInt(STATE_MENU_SELECTED,itemMenuSelected);
-//        super.onSaveInstanceState(outState);
-//    }
-//
-//    @Override
-//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-//        //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST);
-//        //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
-//        itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
-//
-//        super.onRestoreInstanceState(savedInstanceState);
-//    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //outState.putParcelableArrayList(STATE_MOVIE_LIST, Parcels.wrap(mMoviesList));
+        //outState.putSerializable(STATE_MOVIE_DETAILS,mMoviesList);
+        //outState.putSerializable(STATE_MOVIE_LIST, (Serializable) mMoviesList);
+        outState.putInt(STATE_MENU_SELECTED,itemMenuSelected);
+
+    }
+
 
     public void setLayoutManager() {
         //StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -278,7 +277,8 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             @Override
             public void onResponse(Call<MoviesResults> call, Response<MoviesResults> response) {
                 if (response.isSuccessful()) {
-                    mMoviesList = response.body().getmMoviesResults();
+                    mMoviesList = new ArrayList<>(response.body().getmMoviesResults().size());
+                    mMoviesList = (ArrayList<Movie>) response.body().getmMoviesResults();
                     if (mMoviesList.size() != 0) {
                         if (mTwoPane){
                             Bundle bundle = new Bundle();
@@ -339,7 +339,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                     return cursor;
 
                 }catch (Exception e){
-                    Log.e(Utils.TAG, Constants.EXCEPTION_RESOLVER_QUERY);
+                    Log.e(TAG, Constants.EXCEPTION_RESOLVER_QUERY);
                     e.printStackTrace();
                     return null;
                 }
@@ -357,7 +357,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         //TODO create function that cast the cursor on list of movie
 
-        mMoviesList = cursorToListMovies(data);
+        mMoviesList = (ArrayList<Movie>) cursorToListMovies(data);
         setRecyclerAdapter(rvMovieList, mMoviesList);
     }
 

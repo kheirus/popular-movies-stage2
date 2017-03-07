@@ -18,4 +18,5 @@ public class MoviesResults {
     public List<Movie> getmMoviesResults() {
         return mMoviesResults;
     }
+
 }

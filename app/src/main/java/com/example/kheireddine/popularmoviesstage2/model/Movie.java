@@ -152,4 +152,22 @@ public class Movie{
     public void setFavourite(boolean favourite) {
         isFavourite = favourite;
     }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", poster='" + poster + '\'' +
+                ", backdrop='" + backdrop + '\'' +
+                ", synopsis='" + synopsis + '\'' +
+                ", rating='" + rating + '\'' +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", runtime='" + runtime + '\'' +
+                ", trailersResults=" + trailersResults +
+                ", reviewsResults=" + reviewsResults +
+                ", images=" + images +
+                ", isFavourite=" + isFavourite +
+                '}';
+    }
 }

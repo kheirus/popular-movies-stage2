@@ -42,7 +42,6 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
         // Execute the query
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
-        Log.d(Utils.TAG, "onCreate: (database) " + db.getPath());
 
     }
 

@@ -111,8 +111,6 @@ public class MovieDetailsFragment extends Fragment implements
         setTrailerLayoutManager();
         setReviewLayoutManager();
 
-        Log.d(Utils.TAG, "onCreateView: savedInstanceState "+savedInstanceState);
-
         return view;
     }
 
@@ -135,10 +133,10 @@ public class MovieDetailsFragment extends Fragment implements
 
         // retrieve saved instance state
         if (savedInstanceState !=null){
-            Log.d(Utils.TAG, "savedInstanceState = "+savedInstanceState.containsKey(STATE_MOVIE_DETAILS));
+
             mMovie = Parcels.unwrap(savedInstanceState.getParcelable(STATE_MOVIE_DETAILS));
+
         } else {
-            Log.d(Utils.TAG, "saved null = ");
             // fetch other details of the movie (trailers, images, reviews...)
             if (movieFromType == MOVIE_FROM_LIST ||
                     (movieFromType == MOVIE_FROM_CURSOR && Utils.isOnline(getActivity()))) {
@@ -146,19 +144,14 @@ public class MovieDetailsFragment extends Fragment implements
              *  OR
              *  When the movie was selected from movies comes from database BUT the internet is available to requesting ThMDB API
              * */
-                Log.d(Utils.TAG, "httpGetMovieDetails ****");
                 httpGetMovieDetails(mMovie.getId());
             }
         }
-
-
-
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(Utils.TAG, "onSaveInstanceState: "+mMovie.toString());
         outState.putParcelable(STATE_MOVIE_DETAILS, Parcels.wrap(mMovie));
 
     }
@@ -183,7 +176,6 @@ public class MovieDetailsFragment extends Fragment implements
                 .error(R.drawable.poster_error)
                 .into(ivBackdrop);
 
-        Log.d(Utils.TAG, "isFavbtnchecked " + isFavBtnChecked);
         if (isFavBtnChecked){
             fabFavourite.setImageResource(R.drawable.ic_favorite_fill);
         } else {

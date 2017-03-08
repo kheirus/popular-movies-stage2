@@ -47,6 +47,8 @@ public abstract class Constants {
     public static final String STATE_MOVIE_LIST ="state_movie_list";
     public static final String STATE_MOVIE_DETAILS = "state_movie_details";
     public static final String STATE_MENU_SELECTED = "selected_menu_item";
+    public static final String STATE_MENU_TTITLE = "menu_title";
+
 
 
 

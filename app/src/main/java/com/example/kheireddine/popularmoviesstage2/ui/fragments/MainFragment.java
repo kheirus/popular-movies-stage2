@@ -111,6 +111,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         // re-queries for all movies from db
         if (isFavSorting)
             getActivity().getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+
     }
 
 
@@ -120,12 +121,12 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         // retrieve saved instance
         if (savedInstanceState !=null){
             hasSavedInstance = true;
-            //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST));
-            //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
-            //mMoviesList = (ArrayList<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_DETAILS);
-            Log.d(TAG, "serialisable moviesList = "+mMoviesList.size());
-            itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
 
+            //mMoviesList = (ArrayList<Movie>) savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST);
+            itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
+            //SORT_BY = savedInstanceState.getString(STATE_MENU_TTITLE);
+        } else {
+            hasSavedInstance = false;
         }
 
         mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
@@ -155,9 +156,8 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putParcelableArrayList(STATE_MOVIE_LIST, Parcels.wrap(mMoviesList));
-        //outState.putSerializable(STATE_MOVIE_DETAILS,mMoviesList);
-        //outState.putSerializable(STATE_MOVIE_LIST, (Serializable) mMoviesList);
+        // outState.putParcelableArrayList(STATE_MOVIE_LIST, (ArrayList<? extends Parcelable>) mMoviesList);
+        //outState.putString(STATE_MENU_TTITLE, SORT_BY);
         outState.putInt(STATE_MENU_SELECTED,itemMenuSelected);
 
     }
@@ -165,7 +165,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
     public void setLayoutManager() {
         //StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-
         int nbCell;
 
         if (mTwoPane)
@@ -190,7 +189,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
      */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main, menu);
 

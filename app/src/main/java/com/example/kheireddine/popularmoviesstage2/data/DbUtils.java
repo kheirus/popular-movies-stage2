@@ -82,7 +82,7 @@ public class DbUtils {
     public static void deleteMovie(Context context, Movie movie){
         String stringId = String.valueOf(movie.getId());
         Uri uri = CONTENT_URI.buildUpon().appendPath(stringId).build();
-        Log.d(Utils.TAG, "deleteMovieURI: "+uri);
+
         context.getContentResolver().delete(uri, null, null);
 
         // delete the movie from SharedPreferences file

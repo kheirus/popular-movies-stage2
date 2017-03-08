@@ -23,11 +23,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
     @Rule
-    public ActivityTestRule<MainActivity> mMovieListActivityActivityTestRule =
+    public ActivityTestRule<MainActivity> mMainActivityTestRule =
             new ActivityTestRule<MainActivity>(MainActivity.class);
-
-    @Before
-
 
     @Test
     public void mainActivityLaunches(){

@@ -160,7 +160,7 @@ public class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.Movi
         }
 
         public void addDetailFragmentForTwoPane(Bundle bundle) {
-            MovieDetailsFragment detailFragment = MovieDetailsFragment.create(bundle);
+            MovieDetailsFragment detailFragment = MovieDetailsFragment.create(bundle, mTwoPane);
             FragmentManager fragmentManager = ((MainActivity) mContext).getSupportFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.fl_details, detailFragment)

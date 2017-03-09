@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;;
 
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
+import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -18,6 +19,8 @@ import static com.example.kheireddine.popularmoviesstage2.data.MovieContract.Fav
 
 public class DbUtils {
     private static final String SHARED_PREFERENCES_FILE_NAME = "favourite_checking";
+    private static final String SP_KEY_ITEM_MENU = "item_menu_selected";
+
     public final static boolean BTN_CHECKED = true;
     public final static boolean BTN_UNCHECKED = false;
     /**
@@ -47,6 +50,29 @@ public class DbUtils {
         return isChecked;
     }
 
+    /**
+     * Setting value of selected item menu
+     * @param context Context of the Activity
+     * @param sortBy value of the param send to get movie http request
+     * */
+    public static void setItemMenuSelected(Context context, String sortBy){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_FILE_NAME,MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SP_KEY_ITEM_MENU, sortBy);
+        editor.commit();
+    }
+
+
+    /**
+     * Getting value of selected item menu
+     * @param context Context of the Activity
+     * @return value of the selected item menu
+     * */
+    public static String getItemMenuSelected(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_FILE_NAME,MODE_PRIVATE);
+        String itemSelected = sharedPreferences.getString(SP_KEY_ITEM_MENU, Constants.SORT_BY_DEFAULT);
+        return itemSelected;
+    }
 
     /**
      * Insert a Movie as a favourite in the databe

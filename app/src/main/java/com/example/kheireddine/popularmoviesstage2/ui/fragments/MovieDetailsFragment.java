@@ -85,11 +85,13 @@ public class MovieDetailsFragment extends Fragment implements
     private static boolean isFavBtnChecked;
     private Context mContext;
     private ITheMovieDbRestAPI mdbAPI;
+    private static boolean mTwoPane;
 
 
-    public static MovieDetailsFragment create(Bundle args){
+    public static MovieDetailsFragment create(Bundle args, boolean isTwoPane){
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         fragment.setArguments(args);
+        mTwoPane = isTwoPane;
         return fragment;
     }
 
@@ -107,9 +109,11 @@ public class MovieDetailsFragment extends Fragment implements
 
         setHasOptionsMenu(true);
         setViewMovie();
-        setToolBar(mMovie.getTitle(),true,true);
         setTrailerLayoutManager();
         setReviewLayoutManager();
+
+        if (!mTwoPane)
+            setToolBar(mMovie.getTitle(),true,true);
 
         return view;
     }
@@ -125,7 +129,6 @@ public class MovieDetailsFragment extends Fragment implements
         }
         mContext = getActivity();
         mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
-
 
         // getting value of button favourite (checked or unchecked)
         isFavBtnChecked = DbUtils.getStateChecking(mContext, mMovie);
@@ -153,7 +156,6 @@ public class MovieDetailsFragment extends Fragment implements
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(STATE_MOVIE_DETAILS, Parcels.wrap(mMovie));
-
     }
 
     private void setViewMovie(){

@@ -20,6 +20,8 @@ public abstract class Constants {
 
     public static final String SORT_BY_TOP_RATED = "top_rated";
     public static final String SORT_BY_POPOLARITY = "popular";
+    public static final String SORT_BY_FAVOURITE = "favourite";
+
     public static final String SORT_BY_DEFAULT = SORT_BY_POPOLARITY;
 
     public static final String TOAST_WATCHING_TRAILER_ = "watching trailer : ";

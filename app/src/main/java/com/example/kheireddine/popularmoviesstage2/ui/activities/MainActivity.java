@@ -26,23 +26,24 @@ public class MainActivity extends AppCompatActivity {
             addGridFragment();
         }
 
+            }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         mChargingIntentFilter = new IntentFilter();
         mChargingIntentFilter.addAction(Intent.ACTION_POWER_CONNECTED);
         mChargingIntentFilter.addAction(Intent.ACTION_POWER_DISCONNECTED);
 
         mChargingBroadcastReceiver = new ChargingBroadCastReceiver();
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //registerReceiver(mChargingBroadcastReceiver, mChargingIntentFilter);
+        registerReceiver(mChargingBroadcastReceiver, mChargingIntentFilter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //unregisterReceiver(mChargingBroadcastReceiver);
+        unregisterReceiver(mChargingBroadcastReceiver);
     }
 
     public void addGridFragment() {

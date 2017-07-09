@@ -14,6 +14,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,8 +54,7 @@ import static com.example.kheireddine.popularmoviesstage2.utils.Utils.TAG;
  * A simple {@link Fragment} subclass.
  */
 public class MainFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
-    @BindView(R.id.rv_movies_list)
-    RecyclerView rvMovieList;
+    @BindView(R.id.rv_movies_list) RecyclerView rvMovieList;
     private ArrayList<Movie> mMoviesList;
     private MovieGridAdapter mAdapter;
     private String SORT_BY = Constants.SORT_BY_DEFAULT;
@@ -67,6 +67,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     private int itemMenuSelected = -1;
     private MenuItem menuItem;
     private boolean mTwoPane;
+    private boolean isSmartphone;
 
 
     // Refers to a unique loader
@@ -92,9 +93,12 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view  = inflater.inflate(R.layout.fragment_main, container, false);
+        isSmartphone = getResources().getBoolean(R.bool.isSmartphone);
         if (getActivity().findViewById(R.id.fl_details) != null) {
             mTwoPane = true;
+
         }
+
 
         ButterKnife.bind(this, view);
         setHasOptionsMenu(true);
@@ -123,7 +127,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
             //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST));
             //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
             //mMoviesList = (ArrayList<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_DETAILS);
-            Log.d(TAG, "serialisable moviesList = "+mMoviesList.size());
+            //Log.d(TAG, "serialisable moviesList = "+mMoviesList.size());
             itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
 
         }
@@ -173,14 +177,22 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         else
             nbCell= Utils.calculateNoOfColumns(mContext);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, nbCell);
-        rvMovieList.setLayoutManager(gridLayoutManager);
-        rvMovieList.setHasFixedSize(true);
+        if (isSmartphone && mTwoPane){
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
+            rvMovieList.setLayoutManager(linearLayoutManager);
+            rvMovieList.setHasFixedSize(true);
+        }
+        else{
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, nbCell);
+            rvMovieList.setLayoutManager(gridLayoutManager);
+            rvMovieList.setHasFixedSize(true);
+        }
+
     }
 
     // Adapter with a list of movie as a data
     private void setRecyclerAdapter(RecyclerView recyclerView, List<Movie> movieList) {
-        mAdapter = new MovieGridAdapter(mContext, movieList, mTwoPane);
+        mAdapter = new MovieGridAdapter(mContext, movieList, mTwoPane, isSmartphone);
         recyclerView.setAdapter(mAdapter);
     }
 
@@ -389,4 +401,5 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         }
         return listMovies;
     }
+
 }

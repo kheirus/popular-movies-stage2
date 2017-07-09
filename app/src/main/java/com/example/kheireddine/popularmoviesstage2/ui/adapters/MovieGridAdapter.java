@@ -43,11 +43,13 @@ public class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.Movi
     private List<Movie> moviesList;
     private boolean isFavouriteMovie;
     private boolean mTwoPane;
+    private boolean isLandscapeSmartphone;
 
-    public MovieGridAdapter(Context mContext, List<Movie> moviesList, boolean twoPane) {
+    public MovieGridAdapter(Context mContext, List<Movie> moviesList, boolean twoPane, boolean isLandscapeSmartphone) {
         this.mContext = mContext;
         this.moviesList = moviesList;
         mTwoPane = twoPane;
+        this.isLandscapeSmartphone = isLandscapeSmartphone;
 
     }
 
@@ -56,8 +58,14 @@ public class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.Movi
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context mContext = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(mContext);
+        View view = null;
+        if (isLandscapeSmartphone && mTwoPane){
+            view = inflater.inflate(R.layout.movie_item_small, parent, false);
+        }
+        else {
+            view = inflater.inflate(R.layout.movie_item, parent, false);
+        }
 
-        View view = inflater.inflate(R.layout.movie_item, parent, false);
         MovieViewHolder viewHolder = new MovieViewHolder(view);
 
         return viewHolder;

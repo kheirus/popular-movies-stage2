@@ -1,5 +1,6 @@
 package com.example.kheireddine.popularmoviesstage2.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
@@ -72,14 +73,16 @@ public class Utils {
      * @param title   : Dialog title
      * @param message : Dialog message
      */
-    public static void showDialog(Context context, String title, String message){
+    public static void showDialog(final Context context, String title, String message){
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle(title);
         alertDialog.setMessage(message);
+        alertDialog.setCancelable(false);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        ((Activity)context).finish();
                     }
                 });
         alertDialog.show();

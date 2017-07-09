@@ -2,11 +2,8 @@ package com.example.kheireddine.popularmoviesstage2.ui.fragments;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
@@ -27,10 +24,10 @@ import android.view.ViewGroup;
 import com.example.kheireddine.popularmoviesstage2.R;
 import com.example.kheireddine.popularmoviesstage2.api.ITheMovieDbRestAPI;
 import com.example.kheireddine.popularmoviesstage2.api.TheMovieDbServiceAPI;
+import com.example.kheireddine.popularmoviesstage2.data.DbUtils;
 import com.example.kheireddine.popularmoviesstage2.data.MovieContract;
 import com.example.kheireddine.popularmoviesstage2.model.Movie;
 import com.example.kheireddine.popularmoviesstage2.model.MoviesResults;
-import com.example.kheireddine.popularmoviesstage2.ui.activities.MovieDetailsActivity;
 import com.example.kheireddine.popularmoviesstage2.ui.adapters.MovieGridAdapter;
 import com.example.kheireddine.popularmoviesstage2.utils.Constants;
 import com.example.kheireddine.popularmoviesstage2.utils.Utils;
@@ -57,12 +54,9 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @BindView(R.id.rv_movies_list) RecyclerView rvMovieList;
     private ArrayList<Movie> mMoviesList;
     private MovieGridAdapter mAdapter;
-    private String SORT_BY = Constants.SORT_BY_DEFAULT;
+    private String sortBy = Constants.SORT_BY_DEFAULT;
     private Context mContext;
     public ITheMovieDbRestAPI mdbAPI;
-
-
-    private static final int TITLE_MOVIE_DEFAULT = R.string.toolbar_pop_movies;
 
     private int itemMenuSelected = -1;
     private MenuItem menuItem;
@@ -73,8 +67,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     // Refers to a unique loader
     private static final int MOVIE_LOADER_ID = 1;
     private static boolean isFavSorting;
-    private boolean hasSavedInstance;
-
 
     public static MainFragment create(){
         MainFragment fragment = new MainFragment();
@@ -102,7 +94,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
 
         ButterKnife.bind(this, view);
         setHasOptionsMenu(true);
-        setToolBar(getString(TITLE_MOVIE_DEFAULT));
         setLayoutManager();
 
         return view;
@@ -115,6 +106,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         // re-queries for all movies from db
         if (isFavSorting)
             getActivity().getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+
     }
 
 
@@ -123,24 +115,34 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onCreate(savedInstanceState);
         // retrieve saved instance
         if (savedInstanceState !=null){
-            hasSavedInstance = true;
             //mMoviesList = savedInstanceState.getParcelableArrayList(STATE_MOVIE_LIST));
             //mMoviesList = (List<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_LIST);
             //mMoviesList = (ArrayList<Movie>) savedInstanceState.getSerializable(STATE_MOVIE_DETAILS);
             //Log.d(TAG, "serialisable moviesList = "+mMoviesList.size());
-            itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
 
+            itemMenuSelected = savedInstanceState.getInt(STATE_MENU_SELECTED);
         }
 
         mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
-
         mContext = getContext();
 
 
         /** Check network and api_key */
-        if (Utils.isOnline(mContext) /*&& !hasSavedInstance*/) {
+        if (Utils.isOnline(mContext)) {
             if (Utils.isValidApiKey()){
-                httpGetMovies(SORT_BY);
+                String sortedBy = DbUtils.getItemMenuSelected(mContext);
+                if (sortedBy.equals(Constants.SORT_BY_FAVOURITE)){
+                    setToolBar(getString(R.string.toolbar_favourite_movies));
+                    dbGetFavouriteMovies();
+                } else {
+                    if (sortedBy.equals(Constants.SORT_BY_POPOLARITY)){
+                        setToolBar(getString(R.string.toolbar_pop_movies));
+                    }
+                    else {
+                        setToolBar(getString(R.string.toolbar_top_movies));
+                    }
+                    httpGetMovies(sortedBy);
+                }
             }
 
             // invalid API_KEY
@@ -159,17 +161,12 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putParcelableArrayList(STATE_MOVIE_LIST, Parcels.wrap(mMoviesList));
-        //outState.putSerializable(STATE_MOVIE_DETAILS,mMoviesList);
-        //outState.putSerializable(STATE_MOVIE_LIST, (Serializable) mMoviesList);
         outState.putInt(STATE_MENU_SELECTED,itemMenuSelected);
-
     }
 
 
     public void setLayoutManager() {
         //StaggeredGridLayoutManager sglm = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-
         int nbCell;
 
         if (mTwoPane)
@@ -202,7 +199,6 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
      */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main, menu);
 
@@ -233,24 +229,28 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
         int id = item.getItemId();
         switch (id) {
             case R.id.item_sort_by_popularity:
-                SORT_BY = Constants.SORT_BY_POPOLARITY;
+                sortBy = Constants.SORT_BY_POPOLARITY;
+                DbUtils.setItemMenuSelected(mContext, sortBy);
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_pop_movies));
-                httpGetMovies(SORT_BY);
+                httpGetMovies(sortBy);
                 isFavSorting = false;
                 itemMenuSelected = id;
                 return true;
 
             case R.id.item_sort_by_top_rated:
-                SORT_BY = Constants.SORT_BY_TOP_RATED;
+                sortBy = Constants.SORT_BY_TOP_RATED;
+                DbUtils.setItemMenuSelected(mContext, sortBy);
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_top_movies));
-                httpGetMovies(SORT_BY);
+                httpGetMovies(sortBy);
                 isFavSorting = false;
                 itemMenuSelected = id;
                 return true;
 
             case R.id.item_sort_by_favourite:
+                sortBy = Constants.SORT_BY_FAVOURITE;
+                DbUtils.setItemMenuSelected(mContext, sortBy);
                 item.setChecked(true);
                 setToolBar(getString(R.string.toolbar_favourite_movies));
                 dbGetFavouriteMovies();
@@ -272,7 +272,7 @@ public class MainFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     public void addDetailFragmentForTwoPane(Bundle bundle) {
-        MovieDetailsFragment detailFragment = MovieDetailsFragment.create(bundle);
+        MovieDetailsFragment detailFragment = MovieDetailsFragment.create(bundle, mTwoPane);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.fl_details, detailFragment)

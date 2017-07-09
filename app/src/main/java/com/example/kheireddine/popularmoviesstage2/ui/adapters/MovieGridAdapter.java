@@ -159,7 +159,6 @@ public class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.Movi
                     addDetailFragmentForTwoPane(bundle);
                 }
                 else {
-                    Log.d(Utils.TAG, "Intent called ");
                     Intent movieDetailsIntent = new Intent(mContext, MovieDetailsActivity.class);
                     movieDetailsIntent.putExtra(EXTRA_PARCELABLE_MOVIE, Parcels.wrap(mMovieClicked));
                     movieDetailsIntent.putExtra(EXTRA_MOVIE_FROM_TYPE, movieFromType);
@@ -169,7 +168,7 @@ public class MovieGridAdapter extends RecyclerView.Adapter<MovieGridAdapter.Movi
         }
 
         public void addDetailFragmentForTwoPane(Bundle bundle) {
-            MovieDetailsFragment detailFragment = MovieDetailsFragment.create(bundle);
+            MovieDetailsFragment detailFragment = MovieDetailsFragment.create(bundle, mTwoPane);
             FragmentManager fragmentManager = ((MainActivity) mContext).getSupportFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.fl_details, detailFragment)

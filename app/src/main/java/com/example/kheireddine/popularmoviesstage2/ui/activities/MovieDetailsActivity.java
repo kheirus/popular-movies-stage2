@@ -68,7 +68,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (!isFinishing()) {
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
-            MovieDetailsFragment detailFragment = MovieDetailsFragment.create(getIntent().getExtras());
+            MovieDetailsFragment detailFragment = MovieDetailsFragment.create(getIntent().getExtras(), false);
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()

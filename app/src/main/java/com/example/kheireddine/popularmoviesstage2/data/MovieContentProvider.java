@@ -132,7 +132,7 @@ public class MovieContentProvider extends ContentProvider {
         if (returnDeletedMovies !=0){
             getContext().getContentResolver().notifyChange(uri, null);
         }
-        Log.d(Utils.TAG, "delete nb : "+returnDeletedMovies);
+
         return returnDeletedMovies;
     }
 

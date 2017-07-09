@@ -85,11 +85,13 @@ public class MovieDetailsFragment extends Fragment implements
     private static boolean isFavBtnChecked;
     private Context mContext;
     private ITheMovieDbRestAPI mdbAPI;
+    private static boolean mTwoPane;
 
 
-    public static MovieDetailsFragment create(Bundle args){
+    public static MovieDetailsFragment create(Bundle args, boolean isTwoPane){
         MovieDetailsFragment fragment = new MovieDetailsFragment();
         fragment.setArguments(args);
+        mTwoPane = isTwoPane;
         return fragment;
     }
 
@@ -107,11 +109,11 @@ public class MovieDetailsFragment extends Fragment implements
 
         setHasOptionsMenu(true);
         setViewMovie();
-        setToolBar(mMovie.getTitle(),true,true);
         setTrailerLayoutManager();
         setReviewLayoutManager();
 
-        Log.d(Utils.TAG, "onCreateView: savedInstanceState "+savedInstanceState);
+        if (!mTwoPane)
+            setToolBar(mMovie.getTitle(),true,true);
 
         return view;
     }
@@ -128,17 +130,16 @@ public class MovieDetailsFragment extends Fragment implements
         mContext = getActivity();
         mdbAPI = TheMovieDbServiceAPI.createService(ITheMovieDbRestAPI.class);
 
-
         // getting value of button favourite (checked or unchecked)
         isFavBtnChecked = DbUtils.getStateChecking(mContext, mMovie);
 
 
         // retrieve saved instance state
         if (savedInstanceState !=null){
-            Log.d(Utils.TAG, "savedInstanceState = "+savedInstanceState.containsKey(STATE_MOVIE_DETAILS));
+
             mMovie = Parcels.unwrap(savedInstanceState.getParcelable(STATE_MOVIE_DETAILS));
+
         } else {
-            Log.d(Utils.TAG, "saved null = ");
             // fetch other details of the movie (trailers, images, reviews...)
             if (movieFromType == MOVIE_FROM_LIST ||
                     (movieFromType == MOVIE_FROM_CURSOR && Utils.isOnline(getActivity()))) {
@@ -146,21 +147,15 @@ public class MovieDetailsFragment extends Fragment implements
              *  OR
              *  When the movie was selected from movies comes from database BUT the internet is available to requesting ThMDB API
              * */
-                Log.d(Utils.TAG, "httpGetMovieDetails ****");
                 httpGetMovieDetails(mMovie.getId());
             }
         }
-
-
-
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(Utils.TAG, "onSaveInstanceState: "+mMovie.toString());
         outState.putParcelable(STATE_MOVIE_DETAILS, Parcels.wrap(mMovie));
-
     }
 
     private void setViewMovie(){
@@ -183,7 +178,6 @@ public class MovieDetailsFragment extends Fragment implements
                 .error(R.drawable.poster_error)
                 .into(ivBackdrop);
 
-        Log.d(Utils.TAG, "isFavbtnchecked " + isFavBtnChecked);
         if (isFavBtnChecked){
             fabFavourite.setImageResource(R.drawable.ic_favorite_fill);
         } else {

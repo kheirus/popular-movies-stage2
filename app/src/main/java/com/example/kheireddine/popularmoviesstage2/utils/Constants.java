@@ -20,6 +20,8 @@ public abstract class Constants {
 
     public static final String SORT_BY_TOP_RATED = "top_rated";
     public static final String SORT_BY_POPOLARITY = "popular";
+    public static final String SORT_BY_FAVOURITE = "favourite";
+
     public static final String SORT_BY_DEFAULT = SORT_BY_POPOLARITY;
 
     public static final String TOAST_WATCHING_TRAILER_ = "watching trailer : ";
@@ -47,6 +49,8 @@ public abstract class Constants {
     public static final String STATE_MOVIE_LIST ="state_movie_list";
     public static final String STATE_MOVIE_DETAILS = "state_movie_details";
     public static final String STATE_MENU_SELECTED = "selected_menu_item";
+    public static final String STATE_MENU_TTITLE = "menu_title";
+
 
 
 
